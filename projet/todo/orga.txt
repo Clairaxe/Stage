@@ -1,0 +1,10 @@
+1) Organiser le dépôt git !
+2) voir si je peux avoir des dépôts dans mon dépôt (ou juste comment gérer la chose)
+3) continuer le time warping
+4) commencer la non negative matrix
+5) Mise à jour de mon rapport de stage !
+- faire un répertoire rapport de stage
+- mettre un récap biologique 
+- mettre un vrai récap de l'article de GG
+- mettre un vrai chapitre sur tous les outils utilisés (PCA, Time Warping, NNM etc.)
+- 
