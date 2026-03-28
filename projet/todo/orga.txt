@@ -7,4 +7,3 @@
 - mettre un récap biologique 
 - mettre un vrai récap de l'article de GG
 - mettre un vrai chapitre sur tous les outils utilisés (PCA, Time Warping, NNM etc.)
-- 
