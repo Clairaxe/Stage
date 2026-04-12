@@ -24,6 +24,10 @@ dataset from GG2017 (Session 13 from RAT 8 and session 27 from Rat 11)
 
 Figures and Report Draft in Typst 
 
+## test :
+
+Testing files to understand how to use objects and library
+
 ## todo :
 
 List of things to do
