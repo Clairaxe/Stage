@@ -38,26 +38,82 @@
 = Introduction
 
 Understanding how distributed brain regions coordinate their activity to support emotional memory is a central question in systems neuroscience.  
-In particular, interactions between the hippocampus (HPC) and the basolateral amygdala (BLA) are thought to play a key role in the encoding and consolidation of emotionally salient experiences.
+In particular, interactions between the hippocampus (HPC) and the basolateral amygdala (BLA) are known to play a key role in the encoding, consolidation, and retrieval of emotionally salient experiences.
 
-This project analyzes neural recordings from Girardeau et al. @Girardeau2017, which investigated coordinated reactivation events between hippocampus and amygdala during emotional learning.
+This project is based on the dataset introduced by Girardeau et al. @Girardeau2017, which investigates coordinated neural activity between hippocampus and amygdala during an associative learning task.  
+In this experiment, rats repeatedly traverse a linear track where an aversive stimulus (air puff) is delivered at a fixed spatial location. Over time, animals learn to associate a specific traversal direction with the occurrence of this aversive event.
 
-The dataset consists of multi-unit recordings from rats performing repeated traversals along a linear track where an aversive stimulus (air puff) is delivered at a fixed location.
-
-We focus on two sessions with the largest number of simultaneously recorded neurons:
+The data consist of simultaneous multi-unit recordings from multiple brain regions, including hippocampus and basolateral amygdala.  
+We focus on two sessions:
 
 + Session 13 from Rat 8  
 + Session 27 from Rat 11  
 
-These sessions contain a substantial number of neurons in both hippocampus and amygdala, making them well suited for population-level analyses.
+These sessions contain the largest number of simultaneously recorded neurons in both regions, making them particularly suitable for population-level analyses.
 
-Our objectives are twofold:
+The main objective of the project is to identify latent structures in neural population activity.  
+To this end, we explore several dimensionality reduction techniques, including:
 
-+ Identify latent population activity patterns using dimensionality reduction techniques.
-+ Explore how neural population activity differs between laps associated with a dangerous direction and laps corresponding to a safe direction.
++ Principal Component Analysis (PCA)
++ Time-warping procedures to align behaviorally relevant events
++ Non-negative Matrix Factorization (NMF) applied to different tensor unfoldings
 
-The analyses presented here aim to characterize the geometry of neural population activity and identify neurons that contribute most strongly to condition-dependent population dynamics.
+These approaches aim to characterize the geometry of population activity, identify groups of neurons with coordinated dynamics, and understand how these dynamics depend on behavioral context.
 
+= Biological Background
+
+#figure(
+  image("images/limbic_system.png", width: 60%),
+  caption: [
+    Primary components of the limbic system
+  ],
+) <limbic_system>
+
+== Episodic Memory and Emotional Modulation
+
+Episodic memory refers to the ability to encode and retrieve specific events, including their spatial context, temporal structure, and associated emotional content.
+
+A key feature of episodic memory is that it integrates multiple types of information:
+
++ *where* the event occurred (spatial context)  
++ *when* it occurred (temporal structure)  
++ *what it meant* (emotional valence)
+
+These different aspects are supported by interacting brain systems rather than a single region.
+
+In particular, the hippocampus and the amygdala play complementary roles in episodic memory formation, especially when events are emotionally salient.
+
+
+== The Hippocampus
+
+The hippocampus (HPC) is a central structure for episodic memory and spatial navigation.
+
+It is well known for containing *place cells*, neurons that fire selectively when the animal occupies a specific position in space.  
+Through this spatial coding, the hippocampus provides a representation of the environment and supports the encoding of the contextual structure of experiences.
+
+More generally, hippocampal activity is thought to organize experiences into structured sequences, contributing to the encoding and replay of episodic memories.
+
+
+== The Basolateral Amygdala
+
+The basolateral amygdala (BLA) is involved in processing emotional significance, particularly in fear learning and aversive conditioning.
+
+Rather than encoding spatial structure, the amygdala assigns value to stimuli and events, signaling whether they are behaviorally relevant, rewarding, or threatening.
+
+This modulation is essential for prioritizing certain experiences in memory, especially those associated with strong emotional outcomes.
+
+
+== HPC–BLA Interactions in Emotional Memory
+
+Episodic memory for emotionally salient events relies on interactions between hippocampus and amygdala.
+
+The hippocampus encodes the contextual and spatial aspects of an experience, while the amygdala encodes its emotional significance.  
+Their interaction allows the brain to link *where an event occurred* with *how important or aversive it was*.
+
+In the present task, the air puff provides an aversive stimulus associated with a specific location and traversal direction.  
+As the animal repeatedly experiences this contingency, the task becomes a model of emotional episodic learning.
+
+Studying the joint activity of hippocampal and amygdala populations near the puff location therefore provides insight into how spatial context and emotional value are integrated at the neural population level.
 
 = Exploratory Analyses and Preprocessing
 
@@ -121,38 +177,11 @@ For each lap we extract:
 Restricting the analysis to the corridor ensures that neural comparisons are performed during comparable behavioral epochs.
 
 
-== Behavioral Results
-
-Using this segmentation, lap durations were computed for both rats.
-
-#figure(
-  grid(
-    columns: 2,
-    gutter: 10pt,
-
-    [
-      #image("figures/LapDuration_points_RUN.png", width: 100%)
-    ],
-
-    [
-      #image("figures/LapDuration_points_POSTRUN.png", width: 100%)
-    ],
-  ),
-  caption: [
-    Lap durations for run and post-run sessions.  
-    Each point represents one lap traversal.
-  ],
-) <fig-lap-duration>
-
-Lap durations vary across traversals, reflecting differences in running speed.  
-This variability motivates additional normalization steps in later analyses.
-
-
 == Neural Data Preprocessing
 
 Neural activity was recorded simultaneously from hippocampus and basolateral amygdala.
 
-All analyses were restricted to **excitatory neurons**, as recommended.
+All analyses were restricted to *excitatory neurons*, as recommended.
 
 Spike trains were binned in time and converted into firing rates.
 
@@ -199,8 +228,8 @@ $
 
 where:
 
-+ $Z$ are the **scores** (time bins in PCA space)
-+ $W$ are the **loadings** (neuron contributions)
++ $Z$ are the *scores* (time bins in PCA space)
++ $W$ are the *loadings* (neuron contributions)
 
 Thus:
 
@@ -225,8 +254,8 @@ To focus on behaviorally relevant activity, neural activity was extracted only w
 
 Passages through this region were classified as:
 
-+ **Danger**: traversal direction associated with air-puff delivery
-+ **Safe**: traversal direction without air-puff
++ *Danger*: traversal direction associated with air-puff delivery
++ *Safe*: traversal direction without air-puff
 
 This yields two matrices:
 
@@ -298,7 +327,7 @@ Loadings indicate which neurons contribute most strongly to each population axis
 
 In both sessions, hippocampal and amygdala neurons are intermixed in loading space rather than forming separate clusters.
 
-This suggests that the dominant population activity patterns involve **joint contributions from both regions**, rather than independent region-specific dynamics.
+This suggests that the dominant population activity patterns involve *joint contributions from both regions*, rather than independent region-specific dynamics.
 
 == Neurons Contributing Most to Population Axes
 
@@ -370,7 +399,106 @@ Instead:
 + Neurons from HPC and BLA jointly contribute to population axes.
 + Some neurons exhibit clear firing differences between danger and safe conditions.
 
-These findings motivate further analyses focusing on **population dynamics and inter-regional communication**.
+These findings motivate further analyses focusing on *population dynamics and inter-regional communication*.
+
+= Time Warping and Event Alignment
+
+Because lap duration varies substantially across traversals, direct comparison of neural activity across laps is not straightforward.  
+A given behavioral epoch may span more or fewer time bins depending on the animal’s instantaneous speed.  
+To compare repeated passages through the air-puff region, we therefore introduced a time-warping procedure.
+
+Our goal was to represent each lap using the same number of temporal bins while preserving alignment with the behaviorally relevant event, namely the air-puff location.
+
+== Puff-Centered Time Warping
+
+We first estimated the spatial position of the air puff, denoted $x_"puff"$, from the run session by taking the median position of the animal during bins labeled as puff events.
+
+For each lap, we then restricted the analysis to the segment of trajectory contained in a spatial window of ±20 cm around this position.  
+This produced, for each traversal, a variable-length neural activity segment centered on the behaviorally relevant zone.
+
+A key step was to identify, within each lap, the time bin whose position was closest to $x_"puff"$.  
+This bin was used as an anchor point and treated as the temporal center of the warped segment.
+
+Each lap was then divided into two parts:
+
++ the portion before the puff-centered anchor
++ the portion after the puff-centered anchor
+
+These two portions were resampled separately by linear interpolation so that all laps were mapped onto the same number of bins.  
+In practice, we used 31 warped bins:
+
++ 15 bins before the puff
++ 1 central bin aligned with the puff
++ 15 bins after the puff
+
+This procedure ensures that the puff occurs at the same normalized temporal position in all laps, while allowing segments of different original durations to be compared directly.
+
+== Interpretation of the Warping Procedure
+
+The time warping does not define a different transformation for each neuron.  
+Instead, the temporal transformation is determined once for each lap from the animal’s trajectory and then applied identically to the activity of all neurons recorded during that lap.
+
+Thus, the warped representation preserves the population structure of neural activity while normalizing the time axis across repeated traversals.
+
+After warping, neural activity can be represented as a third-order tensor
+
+$
+X in RR_+^(N times T times L)
+$
+
+where:
+
++ $N$ is the number of selected neurons
++ $T$ is the number of warped time bins
++ $L$ is the number of laps
+
+Each slice $X_(:,:,l)$ therefore represents the activity of the full neural population during lap $l$, expressed on a common normalized temporal axis centered on the puff.
+
+== Diagnostic: What Does a Warped Time Bin Represent?
+
+Although puff-centered time warping aligns all laps at the puff, it does not guarantee that a given warped time bin corresponds to exactly the same spatial position across laps.  
+Indeed, two traversals may differ not only in duration but also in how position evolves relative to time before and after the puff.
+
+To assess this point, we examined, for each warped time bin, the distribution of spatial positions represented across laps.  
+This analysis showed that puff-centered warping successfully aligns the central event, but that bins away from the center may still correspond to a range of nearby positions.
+
+This observation is particularly relevant for hippocampal activity, since hippocampal neurons are known to encode spatial location.  
+It motivated the consideration of an alternative normalization strategy based directly on spatial position.
+
+== Position-Based Warping
+
+In addition to puff-centered time warping, we implemented a second normalization procedure in which neural activity was interpolated directly onto a common spatial grid spanning the puff zone.
+
+In this case, each normalized bin corresponds to a fixed spatial position rather than a fixed normalized time.  
+This approach eliminates residual spatial variability across laps and makes it possible to compare neural activity at matched positions along the track.
+
+The two approaches therefore emphasize different aspects of the data:
+
++ puff-centered time warping preserves an event-centered temporal interpretation
++ position-based warping preserves strict spatial correspondence across laps
+
+Comparing these two representations helps disentangle whether observed neural structure reflects temporal dynamics around the puff or residual spatial coding.
+
+== Visualization of Activity Before and After Warping
+
+To understand concretely how the normalization affects neural activity, we compared, for selected neurons, three representations of lap-by-lap activity around the puff zone:
+
++ non-warped activity, shown in real time around the puff-centered bin
++ puff-centered warped activity
++ position-warped activity
+
+The non-warped representation retains the original time scale and therefore contains segments of different lengths across laps.  
+The puff-warped representation aligns the air-puff event while normalizing traversal duration.  
+The position-warped representation instead aligns activity at matched spatial locations.
+
+These comparisons provide a direct visual account of how normalization changes the apparent structure of lap-to-lap variability, and help determine whether a given neuron is better interpreted as reflecting event-centered temporal modulation or spatial tuning.
+
+== Perspective for Tensor Decomposition
+
+A main motivation for introducing time warping was to prepare the data for tensor-based population analyses.  
+Without normalization, laps have different durations and cannot be stacked directly into a coherent neuron × time × lap representation.
+
+By mapping all traversals onto a common axis, warping makes it possible to build structured three-dimensional arrays suitable for non-negative matrix factorization on specific unfoldings, and more generally for tensor decomposition methods such as those considered in @Pellegrino2024.
 
 
 = Discussion
