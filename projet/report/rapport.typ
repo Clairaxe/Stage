@@ -1,39 +1,21 @@
-#set page(
-  margin: 1in,
-)
+#import "@preview/charged-ieee:0.1.4": ieee
 
-#set text(
-  size: 11pt,
-)
+#show: ieee.with(
+  title: [Population Analyses of Hippocampus–Amygdala Interactions],
 
-#set heading(numbering: "1.")
+  abstract: [
+    I should add an abstract !
+  ],
 
-#set par(justify: true)
-
-#set math.equation(numbering: none)
-
-#show heading.where(level: 1): it => block[
-  #set text(size: 18pt, weight: "bold")
-  #it
-]
-
-#show heading.where(level: 2): it => block[
-  #set text(size: 14pt, weight: "bold")
-  #it
-]
-
-#show heading.where(level: 3): it => block[
-  #set text(size: 12pt, weight: "bold")
-  #it
-]
-
-#align(center)[
-  #text(size: 20pt, weight: "bold")[Internship Report]
-  #linebreak()
-  #text(size: 14pt)[Population Analyses of Hippocampus–Amygdala Interactions]
-  #linebreak()
-  Claire Chambaz et Claire Meissner Bernard
-]
+  authors: (
+    (
+      name: "Claire Chambaz",
+    ),
+    (
+      name: "Claire Meissner Bernard",
+    ),
+  ),
+)                                                              
 
 = Introduction
 
@@ -416,8 +398,7 @@ A main motivation for introducing time warping was to prepare the data for tenso
 There is much more to try !
 
 + communication subspace analyses @Semedo2020Review
-+ tensor decomposition approaches @Pellegrino2024
-
++ slice tensor component analysis, @Pellegrino2024
 
 = References
 
