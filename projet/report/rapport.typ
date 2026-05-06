@@ -82,7 +82,7 @@ We have Neuronal activity (in Hz), binned spikes from each session (matrix of si
 ) <fig2c>
 == Lap Detection
 
-As said before, the animal repeatedly traverses the corridor between the two extremities of the track. However, it frequently pauses at reward locations located at the extremities. Including these pauses would artificially inflate traversal duration and introduce behavioral variability unrelated to locomotion. So, the analysis was restricted to the central portion of the track: $x \in [0.25, 0.85]$
+As said before, the animal repeatedly traverses the corridor between the two extremities of the track. However, it frequently pauses at reward locations located at the extremities. Including these pauses would artificially inflate traversal duration and introduce behavioral variability unrelated to locomotion. So, the analysis was restricted to the central portion of the track: $x in [0.25, 0.85]$
 
 We therefore define three spatial zones:
 
@@ -112,7 +112,7 @@ Only the central corridor is retained for lap analysis. Red segments correspond 
 
 == Neural Data Preprocessing
 
-Neural activity was recorded simultaneously from hippocampus and basolateral amygdala. All analyses were restricted to excitatory neurons, as recommended. Neural activity matrices take the form $X in RR^(T times N)$ where $T =$ number of time bins and $N =$ number of neurons. Each row represents the instantaneous population state at a given time bin. Neural activity was z-scored across time for each neuron. This ensures that neurons with higher firing rates do not dominate the variance structure. Normalization was applied prior to PCA.
+Neural activity was recorded simultaneously from hippocampus and basolateral amygdala. All analyses were restricted to excitatory neurons. Neural activity matrices take the form $X in RR^(T times N)$ where $T =$ number of time bins and $N =$ number of neurons. Each row represents the instantaneous population state at a given time bin. Neural activity was z-scored across time for each neuron. This ensures that neurons with higher firing rates do not dominate the variance structure. Normalization was applied prior to PCA.
 
 
 = Principal Component Analysis
