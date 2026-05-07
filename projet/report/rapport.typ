@@ -228,12 +228,12 @@ To better understand the population axes, neurons with the largest loading magni
     gutter: 10pt,
 
     [
-      #image("figures/vide.jpg", width: 100%)
+      #image("figures/top_neurons_safe_danger_rat8.png", width: 100%)
       #align(center)[*Rat 8*]
     ],
 
     [
-      #image("figures/vide.jpg", width: 100%)
+      #image("figures/top_neurons_safe_danger.png", width: 100%)
       #align(center)[*Rat 11*]
     ],
   ),
@@ -246,22 +246,22 @@ To better understand the population axes, neurons with the largest loading magni
 
 Points below the diagonal correspond to neurons more active during danger traversals, while points above correspond to neurons more active during safe traversals.
 
-*TODO: add plots and comment !*
+*TODO: COMMENT !*
 
 To examine temporal structure across laps, firing rates of selected neurons were plotted across successive laps.
 
 #figure(
   grid(
-    columns: 2,
+    rows: 2,
     gutter: 10pt,
 
     [
-      #image("figures/vide.jpg", width: 100%)
+      #image("figures/hpc_top_neurons_rat8.png", width: 90%)
       #align(center)[*Rat 8*]
     ],
 
     [
-      #image("figures/vide.jpg", width: 100%)
+      #image("figures/hpc_top_neurons.png", width: 90%)
       #align(center)[*Rat 11*]
     ],
   ),
@@ -273,7 +273,7 @@ To examine temporal structure across laps, firing rates of selected neurons were
 
 The colored background indicates danger laps. This representation allows us to visualize whether neurons contributing strongly to population axes show consistent modulation across repeated traversals.
 
-*TODO: add plots and comment !*
+*TODO: COMMENT !*
 
 == Summary of PCA Findings
 
@@ -351,12 +351,12 @@ Comparing these two representations helps disentangle whether observed neural st
     gutter: 10pt,
 
     [
-      #image("figures/vide.jpg", width: 60%)
+      #image("figures/position_timewarp.png", width: 100%)
       #align(center)[*Puff-centered time warping*]
     ],
 
     [
-      #image("figures/vide.jpg", width: 60%)
+      #image("figures/forced_position_timewarp.png", width: 100%)
       #align(center)[*Position-based warping*]
     ],
   ),
@@ -379,11 +379,11 @@ The puff-warped representation aligns the air-puff event while normalizing trave
 The position-warped representation instead aligns activity at matched spatial locations.
 
 #figure(
-  image("figures/vide.jpg", width: 90%),
+  image("figures/neuron150_warped.png", width: 90%),
   caption: [Warpings for a given neuron],
 ) <fig3>
 
-*TODO: add plot and COMMENT !*
+*TODO: COMMENT !*
 
 == Perspective for Tensor Decomposition
 
@@ -391,7 +391,73 @@ A main motivation for introducing time warping was to prepare the data for tenso
 
 = Non-negative Matrix Factorization
 
-*TODO !*
+After warping, neural activity is represented as a tensor
+
+$
+X in RR_+^(N times T times L),
+$
+
+where $N$ is the number of neurons, $T$ is the number of warped time bins, and $L$ is the number of laps. Since NMF is a matrix factorization method, this tensor must first be reshaped into a two-dimensional matrix. We therefore considered three complementary slicing strategies.
+
+== Time Slicing
+
+#figure(
+  image("figures/nmf_time_slicing_profiles.png", width: 75%),
+  caption: [
+    Temporal components extracted by NMF after time slicing.
+    Each curve corresponds to one component of $W_"time"$.
+    The dashed vertical line indicates the puff-aligned bin.
+  ],
+) <fig-nmf-time>
+
+*TODO: COMMENT !*
+
+== Neuron Slicing
+
+#figure(
+  grid(
+    columns: 2,
+    gutter: 10pt,
+
+    [
+      #image("figures/nmf_neuron_component1.png", width: 100%)
+    ],
+
+    [
+      #image("figures/nmf_neuron_weights.png", width: 100%)
+    ],
+  ),
+
+  caption: [
+    NMF neuron slicing.
+    Left: temporal activity profile associated with first component (of 5 in this example) across laps.
+    Each curve corresponds to one lap, with colors indicating danger and safe traversals.
+    Right: neuron-component weight matrix $W_"neuron"$.
+  ],
+) <fig-nmf-neuron>
+
+Neuron slicing reveals groups of neurons sharing similar temporal responses around the puff. The matrix $W_"neuron"$ highlights how strongly each neuron contributes to the different latent components.
+
+== Lap Slicing
+
+#figure(
+  image("figures/nmf_lap_slicing.png", width: 80%),
+  caption: [
+    NMF lap slicing.
+    Each point corresponds to one lap and shows its weight the first component.
+    Colors indicate danger and safe traversals.
+  ],
+) <fig-nmf-lap>
+
+*TODO: COMMENT !*
+
+== Summary
+
+The three slicing strategies define three different NMF decompositions from the same warped tensor:
+
++ time slicing extracts temporal motifs around the puff
++ neuron slicing extracts groups of neurons with similar activity profiles
++ lap slicing extracts lap-level patterns that may separate danger and safe traversals
 
 = Discussion
 
