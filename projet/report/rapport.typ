@@ -3,10 +3,6 @@
 #show: ieee.with(
   title: [Population Analyses of Hippocampus–Amygdala Interactions],
 
-  abstract: [
-    I should add an abstract !
-  ],
-
   authors: (
     (
       name: "Claire Chambaz",
@@ -15,7 +11,11 @@
       name: "Claire Meissner Bernard",
     ),
   ),
-)                                                              
+)
+
+#set par(
+  spacing: 1em,
+)
 
 = Introduction
 
@@ -23,43 +23,35 @@ Understanding how brain regions coordinate their activity to support emotional m
 
 This project is based on the dataset introduced by Girardeau et al. @Girardeau2017, which investigates coordinated neural activity between hippocampus and amygdala during an associative learning task. In this experiment, rats repeatedly traverse a linear track where an aversive stimulus (air puff) is delivered at a fixed spatial location. Over time, animals learn to associate a specific traversal direction with the occurrence of this aversive event.
 
-The data consist of simultaneous multi-unit recordings from multiple brain regions, including hippocampus and basolateral amygdala. We focus on two sessions: Session 13 from Rat 8 and Session 27 from Rat 11. These sessions contain the largest number of simultaneously recorded neurons in both regions, making them suitable for population-level analyses. The main objective of my internship is to identify latent structures in neural population activity. To this end, we explore several dimensionality reduction techniques, including:
+The data consist of simultaneous multi-unit recordings from multiple brain regions, including hippocampus and basolateral amygdala. The main objective of my internship is to identify latent structures in neural population activity. From the observable data (eg: firing rates of neurons, events, speed, position over time), find a pattern or a subset of neurons that explain the data and associated behavior. This is interesting as it would allow us to better understand how in a strong emotional context, memory is encoded and retrieved in the hippocampus and basolateral amygdala. To this end, we explore several dimensionality reduction techniques, including:
 
 - Principal Component Analysis (PCA)
-- Time-warping
 - Non-negative Matrix Factorization (NMF)
 
-= Biological Background
-
-== Episodic and Emotional Memory
-
-Episodic memory refers to the ability to encode and retrieve specific events, including their spatial context, temporal structure, and associated emotional content. These different aspects are supported by interacting brain systems rather than a single region. In particular, the hippocampus and the amygdala play complementary roles in episodic memory formation, especially when events are emotionally salient.
-
-== The Hippocampus and the Basolateral Amygdala
-
-The hippocampus (HPC) is a central structure for episodic memory and spatial navigation. It is well known for containing place cells, neurons that fire selectively when the animal occupies a specific position in space.
-
-The basolateral amygdala (BLA) is involved in processing emotional significance, particularly in fear learning and aversive conditioning. Rather than encoding spatial structure, the amygdala assigns value to stimuli and events, signaling whether they are behaviorally relevant, rewarding, or threatening.
+The hippocampus and basolateral amygdala are major components of the brain located in the limbic system (@fig1). The HPC is a central structure for episodic memory and spatial navigation. It is well known for containing place cells, neurons that fire selectively when the animal occupies a specific position in space. The BLA is involved in processing emotional significance, particularly in fear learning and aversive conditioning. Rather than encoding spatial structure, the amygdala assigns value to stimuli and events, signaling whether they are behaviorally relevant, rewarding, or threatening.
 
 #figure(
-  image("images/limbic_system.png", width: 50%),
+  image("images/limbic_system.png", width: 110%),
   caption: [Primary components of the limbic system],
 ) <fig1>
 
-= Exploratory Analyses and Preprocessing
+Episodic memory refers to the ability to encode and retrieve specific events, including their spatial context, temporal structure, and associated emotional content. These different aspects are supported by interacting brain systems rather than a single region. In particular, the hippocampus and the amygdala play complementary roles in episodic memory formation, especially when events are emotionally salient.
+
+
+= Dataset and Preprocessing
 
 == Task and dataset
 
-Rats were pretrained to run back and forth on a linear track for water (rewards). There are three blocks to the task:
+Rats were pretrained to run back and forth on a linear track for water as rewards (@fig2). There are three blocks to the task:
 
 - Prerun: Behavioral test session on the track without the air puff (followed by pre-learning sleep in the home cage)
 - Run: An aversive air puff is added at the same location of the track on each lap in one of the running directions (followed by a post-learning sleep)
-- Postrun: Session without the air puff
+- Postrun: Session without the air puff (to study memory retrieval)
 
 #figure(
   grid(
-    columns: 2,
-    gutter: 10pt,
+    rows: 2,
+    gutter: 5pt,
 
     [
       #image("images/linearTrack.png", width: 100%)
@@ -74,15 +66,24 @@ Rats were pretrained to run back and forth on a linear track for water (rewards)
   ],
 ) <fig2>
 
-We have Neuronal activity (in Hz), binned spikes from each session (matrix of size neurons x time bins). We also have the normalized position in the box, x and y position during the all sessions (matrix of size 2 x time bins). Reward and shock delivery, if an airpuff was delivered during the time bin, there will be a 1. 2 stands for right reward and 3 for left reward (matrix of size 1 x time bins). Finally, Information about neurons: their neuron number, unit number in the dataset, brain region and neuronal type (matrix of size neurons x 4).
+We have neuronal activity (in Hz), which consists of binned spikes from each session. Time bins are 50ms. We also have the normalized position in the box, x and y position during all the sessions. Reward and shock delivery, if an airpuff was delivered during the time bin and finally, information about neurons (most importantly brain regions and neuronal types). We focus on two sessions: Session 6 from Rat 8 and Session 16 from Rat 11. These sessions contain the largest number of simultaneously recorded neurons in both regions, making them suitable for population-level analyses (@table1).
 
 #figure(
-  image("images/data.png", width: 40%),
-  caption: [Neuron description for both sessions],
-) <fig2c>
+  table(
+    columns: 3,
+    [], [Rat 8], [Rat 11],
+    [cells dHPC], [55], [62],
+    [cells rAMY], [57], [53],
+    [cells lAMY], [26], [65],
+
+  ),
+  caption: [Number of excitatory neurons in each regions for both sessions],
+) <table1>
+
+
 == Lap Detection
 
-As said before, the animal repeatedly traverses the corridor between the two extremities of the track. However, it frequently pauses at reward locations located at the extremities. Including these pauses would artificially inflate traversal duration and introduce behavioral variability unrelated to locomotion. So, the analysis was restricted to the central portion of the track: $x in [0.25, 0.85]$
+The animal repeatedly traverses the corridor between the two extremities of the track. However, it frequently pauses at reward locations located at the extremities. Including these pauses would artificially inflate traversal duration and introduce behavioral variability unrelated to locomotion. So, the analysis was restricted to the central portion of the track: $x in [0.25, 0.85]$
 
 We therefore define three spatial zones:
 
@@ -95,7 +96,12 @@ A lap is defined as a complete traversal between extremities:
 - Left-to-right (LR)
 - Right-to-left (RL)
 
-Operationally, a lap begins when the animal exits one extremity and enters the corridor, and ends when it reaches the opposite extremity. Short tracking interruptions and brief backtracking movements are ignored to ensure robust segmentation.
+Operationally, a lap begins when the animal exits one extremity and enters the corridor, and ends when it reaches the opposite extremity. Short tracking interruptions and brief backtracking movements are ignored to ensure robust segmentation (@fig3). To be more precise, missing tracking bins are skipped, and incomplete crossings are discarded when the animal returns to its starting side before reaching the opposite side.
+
+#figure(
+  image("figures/lap_segmentation_rat8_run.png", width: 100%),
+  caption: [Example of positional tracking and detected laps during post-run session of Rat 8. Red segments correspond to laps traversed in the danger-associated direction and green segments,t safe laps.],
+) <fig3>
 
 For each lap we extract:
 
@@ -103,47 +109,13 @@ For each lap we extract:
 - Direction (+1 for LR, −1 for RL)
 - Traversal duration
 
-#figure(
-  image("figures/lap_segmentation_rat8_postrun.png", width: 90%),
-  caption: [Example of positional tracking and detected laps during post-run session of Rat 8],
-) <fig3>
-
-Only the central corridor is retained for lap analysis. Red segments correspond to laps traversed in the danger-associated direction.
-
 == Neural Data Preprocessing
 
-Neural activity was recorded simultaneously from hippocampus and basolateral amygdala. All analyses were restricted to excitatory neurons. Neural activity matrices take the form $X in RR^(T times N)$ where $T =$ number of time bins and $N =$ number of neurons. Each row represents the instantaneous population state at a given time bin. Neural activity was z-scored across time for each neuron. This ensures that neurons with higher firing rates do not dominate the variance structure. Normalization was applied prior to PCA.
-
-
-= Principal Component Analysis
-
-== Conceptual Framework
-
-Neural population activity at time $t$ can be viewed as a point in an $N$-dimensional space:
-
-$
-X_(t,:) in RR^N
-$
-
-As the animal moves through the environment, the population state evolves over time, tracing a trajectory in this neural state space Principal Component Analysis identifies the directions of maximal variance in this space. The decomposition can be written as:
-
-$
-Z = X W
-$
-
-where:
-
-+ $Z$ are the *scores* (time bins in PCA space)
-+ $W$ are the *loadings* (neuron contributions)
-
-We than have that:
-
-+ Scores describe the position of the neural population state.
-+ Loadings describe how individual neurons contribute to each population axis.
+Neural activity was recorded simultaneously from hippocampus and basolateral amygdala. All analyses were restricted to excitatory neurons. Neural activity matrices take the form $X in RR^(T times N)$ where $T =$ number of time bins and $N =$ number of neurons. Each row represents the instantaneous population state at a given time bin. Neural activity was z-scored across time for each neuron. This ensures that neurons with higher firing rates do not dominate the variance structure. Normalization was applied prior to PCA and nNMF.
 
 == Extraction of Danger vs Safe Samples
 
-To focus on behaviorally relevant activity, neural activity was extracted only when the animal was within ±20 cm of the air-puff location.
+The position of the puff changes across sessions, so to minimize variability, neural activity was extracted only when the animal was within ±20 cm of the air-puff location.
 
 Passages through this region were classified as:
 
@@ -160,8 +132,28 @@ $
 X^("safe") in RR^(T_s times N)
 $
 
-These matrices were concatenated for PCA.
+Where $T_d$ is the number of time bins associated to the danger direction, and $T_s$, the safe direction. These matrices were concatenated for PCA.
 
+= Principal Component Analysis
+
+== Conceptual Framework
+
+Neural population activity at time $t$ can be viewed as a point in an $N$-dimensional space:
+
+$
+X_(t:) in RR^N
+$
+
+As the animal moves through the environment, the population state evolves over time, tracing a trajectory in this neural state space. Principal Component Analysis identifies the directions of maximal variance in this space and creates a new space defined by patterns of neuronal coactivations. The decomposition can be written as:
+
+$
+Z = X W
+$
+
+where:
+
++ $Z$ are the *scores* (describe the position of the neural population state)
++ $W$ are the *loadings* (describe how individual neurons contribute to each population axis)
 
 == Time-bin PCA
 
@@ -381,7 +373,7 @@ The position-warped representation instead aligns activity at matched spatial lo
 #figure(
   image("figures/neuron150_warped.png", width: 90%),
   caption: [Warpings for a given neuron],
-) <fig3>
+) <fig9>
 
 *TODO: COMMENT !*
 
