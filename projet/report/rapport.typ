@@ -66,7 +66,7 @@ Rats were pretrained to run back and forth on a linear track for water as reward
   ],
 ) <fig2>
 
-We have neuronal activity (in Hz), which consists of binned spikes from each session. Time bins are 50ms. We also have the normalized position in the box, x and y position during all the sessions. Reward and shock delivery, if an airpuff was delivered during the time bin and finally, information about neurons (most importantly brain regions and neuronal types). We focus on two sessions: Session 6 from Rat 8 and Session 16 from Rat 11. These sessions contain the largest number of simultaneously recorded neurons in both regions, making them suitable for population-level analyses (@table1).
+We have neuronal activity (in Hz), which consists of binned spikes from each session. Time bins are 50ms. We also have the normalized position in the box, x and y position during all the sessions. Reward and shock delivery, if an airpuff was delivered during the time bin and finally, information about neurons (most importantly brain regions and neuronal types). We focus on two sessions: Session 6 from Rat 8 and Session 16 from Rat 11. These sessions contain the largest number of simultaneously recorded neurons in both regions, making them suitable for population-level analyses (@table1). We will only focus on the neurons in the dorsal hippocampus (dHPC) and the right amydgala (rAMY).
 
 #figure(
   table(
@@ -106,7 +106,7 @@ Operationally, a lap begins when the animal exits one extremity and enters the c
 For each lap we extract:
 
 - Lap index
-- Direction (+1 for LR, −1 for RL)
+- Direction (+1 for LR, -1 for RL)
 - Traversal duration
 
 == Neural Data Preprocessing
@@ -155,31 +155,42 @@ where:
 + $Z$ are the *scores* (describe the position of the neural population state)
 + $W$ are the *loadings* (describe how individual neurons contribute to each population axis)
 
-== Time-bin PCA
+== Time-bin PCA and Explained Variance
 
 #figure(
   grid(
       columns: 2,
+      rows: 2,
       gutter: 10pt,
-    
-      [
-        #image("figures/pca_scores_rat8.png", width: 100%)
-        #align(center)[*Rat 8*]  
-      ],
+        [
+          #image("figures/pca_scores_rat8.png", width: 100%)
+        ],
 
-      [
-        #image("figures/pca_scores_rat11.png", width: 100%)
-        #align(center)[*Rat 11*]
-      ],
+        [
+          #image("figures/pca_scores_rat11.png", width: 100%)
+        ],
+
+        [
+          #image("figures/scree_plot_rat8.png", width: 100%)
+          #align(center)[*Rat 8*]  
+        ],
+
+        [
+          #image("figures/scree_plot_rat11.png", width: 100%)
+          #align(center)[*Rat 11*]
+        ],
   ),
 
   caption: [
-    PCA scores (PC1 vs PC2).  
-    Each point corresponds to a time bin of neural population activity.
+    The top figures represent PCA scores (PC1 vs PC2) on the run session of both rats.  
+    Each point corresponds to a time bin of neural population activity. 
+    The bottom figures correspond to the explained variance for each principal components.
   ],
-) <fig-pca-scores>
+) <fig4>
 
-*TODO : COMMENT !*
+In @fig4, the PCA score plots reveal a moderate separation between time bins associated with the dangerous and safe directions, especially for Rat 11. Since PCA is fully unsupervised, this suggests that the behavioural context contributes to the dominant modes of neural population variability.
+
+However, the scree plots indicate that variance is broadly distributed across components, with PC1 accounting for only about 5% of the total variance. Therefore, the observed separation should not be interpreted as evidence for a simple low-dimensional coding of danger, but rather as a distributed effect in a high-dimensional neural representation.
 
 == Loadings
 
@@ -200,19 +211,15 @@ where:
   ),
 
     caption: [
-      PCA loadings showing neuron contributions to the first components.
+      PCA loadings showing neuron contributions to the two first components.
     ],
-) <fig-pca-loadings>
+) <fig5>
 
-Loadings indicate which neurons contribute most strongly to each population axis.
-
-*TODO: COMMENT !*
-
-_neurons from both regions are intermixed which suggests that the dominanat population activity patterns involve joint contributions from both regions_
+Loadings indicate how strongly each neuron contributes to the first two principal components (@fig5). In both rats, neurons from the hippocampus tend to display larger loading magnitudes than amygdalar neurons.
 
 == Neurons Contributing Most to Population Axes
 
-To better understand the population axes, neurons with the largest loading magnitudes were selected.
+To better understand the population axes, the three neurons with the largest loading magnitudes were selected (@fig6).
 
 #figure(
   grid(
@@ -220,52 +227,39 @@ To better understand the population axes, neurons with the largest loading magni
     gutter: 10pt,
 
     [
-      #image("figures/top_neurons_safe_danger_rat8.png", width: 100%)
-      #align(center)[*Rat 8*]
+      #image("figures/top_3_rat11.png", width: 100%)
     ],
 
     [
-      #image("figures/top_neurons_safe_danger.png", width: 100%)
-      #align(center)[*Rat 11*]
+      #image("figures/hpc_top_neurons_rat11.png", width: 100%)
     ],
   ),
 
   caption: [
-    Mean firing rates of neurons with largest PCA loadings.  
+    On the left, the three neurons with largest PCA loadings are circled and on the right, their mean firing rates.
     Each point corresponds to one neuron.
   ],
-)
+) <fig6>
 
-Points below the diagonal correspond to neurons more active during danger traversals, while points above correspond to neurons more active during safe traversals.
+Points below the diagonal correspond to neurons with higher average firing rates during danger traversals, whereas points above the diagonal correspond to neurons more active during safe traversals. In particular, neuron 189, which has the strongest loading on PC2, displays increased activity during safe traversals. Similarly, the two neurons contributing strongly to the first principal components are more active during dangerous travels.
 
-*TODO: COMMENT !*
-
-To examine temporal structure across laps, firing rates of selected neurons were plotted across successive laps.
+To examine temporal structure across laps, firing rates of selected neurons were plotted across successive laps (@fig7). 
 
 #figure(
   grid(
     rows: 2,
     gutter: 10pt,
-
     [
-      #image("figures/hpc_top_neurons_rat8.png", width: 90%)
-      #align(center)[*Rat 8*]
-    ],
-
-    [
-      #image("figures/hpc_top_neurons.png", width: 90%)
-      #align(center)[*Rat 11*]
+      #image("figures/hpc_top_neurons_lap_rat11.png", width: 100%)
     ],
   ),
 
   caption: [
-    Firing rate of selected neurons across laps.
+    Firing rate of selected neurons across laps. The red background indicates danger laps. The thin lines are control neurons selected randomly.
   ],
-)
+) <fig7>
 
-The colored background indicates danger laps. This representation allows us to visualize whether neurons contributing strongly to population axes show consistent modulation across repeated traversals.
-
-*TODO: COMMENT !*
+*TODO: COMMENT ! There seems to be a pattern*
 
 == Summary of PCA Findings
 
@@ -356,7 +350,7 @@ Comparing these two representations helps disentangle whether observed neural st
   caption: [
     Two Time warping approaches
   ],
-)
+) <fig8>
 
 == Visualization of Activity Before and After Warping
 
@@ -400,7 +394,7 @@ where $N$ is the number of neurons, $T$ is the number of warped time bins, and $
     Each curve corresponds to one component of $W_"time"$.
     The dashed vertical line indicates the puff-aligned bin.
   ],
-) <fig-nmf-time>
+) <fig10>
 
 *TODO: COMMENT !*
 
@@ -426,7 +420,7 @@ where $N$ is the number of neurons, $T$ is the number of warped time bins, and $
     Each curve corresponds to one lap, with colors indicating danger and safe traversals.
     Right: neuron-component weight matrix $W_"neuron"$.
   ],
-) <fig-nmf-neuron>
+) <fig11>
 
 Neuron slicing reveals groups of neurons sharing similar temporal responses around the puff. The matrix $W_"neuron"$ highlights how strongly each neuron contributes to the different latent components.
 
@@ -439,7 +433,7 @@ Neuron slicing reveals groups of neurons sharing similar temporal responses arou
     Each point corresponds to one lap and shows its weight the first component.
     Colors indicate danger and safe traversals.
   ],
-) <fig-nmf-lap>
+) <fig12>
 
 *TODO: COMMENT !*
 
