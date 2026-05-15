@@ -219,7 +219,7 @@ Loadings indicate how strongly each neuron contributes to the first two principa
 
 == Neurons Contributing Most to Population Axes
 
-To better understand the population axes, the three neurons with the largest loading magnitudes were selected (@fig6).
+To better understand which neurons contribute to the first two PCA axes, we selected neurons whose absolute loading on PC1 or PC2 exceeded 0.3 (@fig6).
 
 #figure(
   grid(
@@ -227,7 +227,7 @@ To better understand the population axes, the three neurons with the largest loa
     gutter: 10pt,
 
     [
-      #image("figures/top_3_rat11.png", width: 100%)
+      #image("figures/top_9_rat11.png", width: 100%)
     ],
 
     [
@@ -236,14 +236,13 @@ To better understand the population axes, the three neurons with the largest loa
   ),
 
   caption: [
-    On the left, the three neurons with largest PCA loadings are circled and on the right, their mean firing rates.
-    Each point corresponds to one neuron.
+    Neurons with large PCA loadings in Rat 11 run session. Left: loading space for PC1 and PC2 where circled points correspond to neurons with absolute loading greater than 0.3 on PC1 or PC2. Right: mean firing rate during danger and safe traversals for the same selected neurons. Dark blue indicates neurons with stronger contribution to PC1, and light blue indicates neurons with stronger contribution to PC2.
   ],
 ) <fig6>
 
-Points below the diagonal correspond to neurons with higher average firing rates during danger traversals, whereas points above the diagonal correspond to neurons more active during safe traversals. In particular, neuron 189, which has the strongest loading on PC2, displays increased activity during safe traversals. Similarly, the two neurons contributing strongly to the first principal components are more active during dangerous travels.
+Points below the diagonal correspond to neurons with higher average firing rates during danger traversals, whereas points above the diagonal correspond to neurons more active during safe traversals. Neurons with stronger contributions to PC1 appear to be preferentially active during danger traversals, while neurons contributing more strongly to PC2 appear more active during safe traversals.
 
-To examine temporal structure across laps, firing rates of selected neurons were plotted across successive laps (@fig7). 
+To examine temporal structure across laps, firing rates of the neurons with the strongest contributions to PC1 and PC2 were plotted across successive laps (@fig7). Randomly selected control neurons from the same region were also displayed for comparison.
 
 #figure(
   grid(
@@ -252,14 +251,17 @@ To examine temporal structure across laps, firing rates of selected neurons were
     [
       #image("figures/hpc_top_neurons_lap_rat11.png", width: 100%)
     ],
+    [
+      #image("figures/hpc_top_control_neurons_lap_rat11.png", width: 100%)
+    ],
   ),
 
   caption: [
-    Firing rate of selected neurons across laps. The red background indicates danger laps. The thin lines are control neurons selected randomly.
+    Firing rates across laps for Rat 11. Top: neurons with the strongest contributions to PC1 and PC2. Bottom: randomly selected control neurons from the same region. Red shaded areas indicate danger laps.
   ],
 ) <fig7>
 
-*TODO: COMMENT ! There seems to be a pattern*
+The neurons contributing most strongly to PCA exhibit clearer lap-to-lap modulation than the control neurons. In particular, the neuron associated primarily with PC1 displays increased activity during danger laps, whereas the neuron associated primarily with PC2 shows higher activity during safe laps. The modulation is almost binary, these temporal patterns are consistent with the interpretation that the first two PCA axes partly capture behavioural-context-dependent population dynamics.
 
 == Summary of PCA Findings
 
@@ -273,13 +275,11 @@ Instead:
 
 = Time Warping and Event Alignment
 
-Because lap duration varies substantially across traversals, direct comparison of neural activity across laps is not straightforward.   A given lap may have a lot or very few time bins depending on the animal’s instantaneous speed. To compare repeated passages through the air-puff region, we try a time-warping procedure. Our goal is to represent each lap using the same number of temporal bins while preserving alignment with the behaviorally relevant event (the air-puff).
+A main motivation for introducing time warping was to prepare the data for tensor-based population analyses. Without normalization, laps have different durations and cannot be stacked directly into a coherent neuron × time × lap representation. By mapping all traversals onto a common axis, warping makes it possible to build structured three-dimensional arrays suitable for non-negative matrix factorization, and more generally for tensor decomposition methods such as those considered in @Pellegrino2024.
 
 == Puff-Centered Time Warping
 
-We first took the spatial position of the air puff, denoted $x_"puff"$. For each lap, we then restricted the analysis to the segment of trajectory contained in a spatial window of ±20 cm around this position. This produced, for each traversal, a variable-length neural activity segment centered on the behaviorally relevant zone.
-
-We identified within each lap, the time bin whose position was closest to $x_"puff"$. This bin was used as an anchor point and treated as the temporal center of the warped segment.
+We first took the spatial position of the air puff, denoted $x_"puff"$. For each lap, we then restricted the analysis to the segment of trajectory contained in a spatial window of ±20 cm around this position. We identified within each lap, the time bin whose position was closest to $x_"puff"$. This bin was used as an anchor point and treated as the temporal center of the warped segment.
 
 Each lap was then divided into two parts:
 
@@ -292,9 +292,7 @@ These two portions were resampled separately by linear interpolation so that all
 + 1 central bin aligned with the puff
 + 15 bins after the puff
 
-This procedure ensures that the puff occurs at the same normalized temporal position in all laps, while allowing segments of different original durations to be compared directly.
-
-The warped representation preserves the population structure of neural activity while normalizing the time axis across repeated traversals. After warping, neural activity can be represented as a third-order tensor
+After warping, neural activity can be represented as a third-order tensor
 
 $
 X in RR_+^(N times T times L)
@@ -306,23 +304,28 @@ where:
 + $T$ is the number of warped time bins
 + $L$ is the number of laps
 
-Each slice $X_(:,:,l)$ therefore represents the activity of the full neural population during lap $l$.
+Each slice $X_(:,:,l)$ represents the activity of the full neural population during lap $l$.
 
-== However
-
-Although puff-centered time warping aligns all laps at the puff, it does not guarantee that a given warped time bin corresponds to exactly the same spatial position across laps. Two traversals may differ not only in duration but also in how position evolves relative to time before and after the puff.
+However, although puff-centered time warping aligns all laps at the puff, it does not guarantee that a given warped time bin corresponds to exactly the same spatial position across laps. Because speed is not always constant, two traversals may differ not only in duration but also in how position evolves relative to time before and after the puff.
 
 To assess this point, we examined, for each warped time bin, the distribution of spatial positions represented across laps.  
-This analysis showed that puff-centered warping successfully aligns the central event, but that bins away from the center may still correspond to a range of nearby positions.
+This analysis showed that puff-centered warping successfully aligns the central event, but that bins away from the center may still correspond to a range of nearby positions (@fig8).
 
-This observation is particularly relevant for hippocampal activity, since hippocampal neurons are known to encode spatial location.  
-It motivated the consideration of an alternative normalization strategy based directly on spatial position.
+#figure(
+  image("figures/position_timewarp.png", width: 100%),
+  caption: [Puff-centered time warping],
+) <fig8>
 
 == Position-Based Warping
 
-In addition to puff-centered time warping, we implemented a second normalization procedure in which neural activity was interpolated directly onto a common spatial grid spanning the puff zone.
+We implemented a second normalization procedure in which neural activity was interpolated directly onto a common spatial grid spanning the puff zone. In this case, each normalized bin corresponds to a fixed spatial position rather than a fixed normalized time (@fig9). This approach eliminates residual spatial variability across laps and makes it possible to compare neural activity at matched positions along the track.
 
-In this case, each normalized bin corresponds to a fixed spatial position rather than a fixed normalized time. This approach eliminates residual spatial variability across laps and makes it possible to compare neural activity at matched positions along the track.
+#figure(
+  image("figures/forced_position_timewarp.png", width: 100%),
+  caption: [Position-based warping]
+  ) <fig9>
+
+*TODO: smaller plots and bigger size of text*
 
 The two approaches therefore emphasize different aspects of the data:
 
@@ -330,27 +333,6 @@ The two approaches therefore emphasize different aspects of the data:
 + position-based warping preserves strict spatial correspondence across laps
 
 Comparing these two representations helps disentangle whether observed neural structure reflects temporal dynamics around the puff or residual spatial coding.
-
-#figure(
-  grid(
-    columns: 2,
-    gutter: 10pt,
-
-    [
-      #image("figures/position_timewarp.png", width: 100%)
-      #align(center)[*Puff-centered time warping*]
-    ],
-
-    [
-      #image("figures/forced_position_timewarp.png", width: 100%)
-      #align(center)[*Position-based warping*]
-    ],
-  ),
-
-  caption: [
-    Two Time warping approaches
-  ],
-) <fig8>
 
 == Visualization of Activity Before and After Warping
 
@@ -360,20 +342,13 @@ To understand concretely how the normalization affects neural activity, we compa
 + puff-centered warped activity
 + position-warped activity
 
-The non-warped representation retains the original time scale and therefore contains segments of different lengths across laps.  
-The puff-warped representation aligns the air-puff event while normalizing traversal duration.  
-The position-warped representation instead aligns activity at matched spatial locations.
-
 #figure(
   image("figures/neuron150_warped.png", width: 90%),
   caption: [Warpings for a given neuron],
-) <fig9>
+) <fig10>
 
-*TODO: COMMENT !*
-
-== Perspective for Tensor Decomposition
-
-A main motivation for introducing time warping was to prepare the data for tensor-based population analyses. Without normalization, laps have different durations and cannot be stacked directly into a coherent neuron × time × lap representation. By mapping all traversals onto a common axis, warping makes it possible to build structured three-dimensional arrays suitable for non-negative matrix factorization, and more generally for tensor decomposition methods such as those considered in @Pellegrino2024.
+*TODO: * The non-warped representation retains the original time scale and therefore contains segments of different lengths across laps. The puff-warped representation aligns the air-puff event while normalizing traversal duration. The position-warped representation instead aligns activity at matched spatial locations.
+_This is not obvious : Better analysis + more adapted not warped plot_
 
 = Non-negative Matrix Factorization
 
@@ -394,7 +369,7 @@ where $N$ is the number of neurons, $T$ is the number of warped time bins, and $
     Each curve corresponds to one component of $W_"time"$.
     The dashed vertical line indicates the puff-aligned bin.
   ],
-) <fig10>
+) <fig11>
 
 *TODO: COMMENT !*
 
@@ -420,7 +395,7 @@ where $N$ is the number of neurons, $T$ is the number of warped time bins, and $
     Each curve corresponds to one lap, with colors indicating danger and safe traversals.
     Right: neuron-component weight matrix $W_"neuron"$.
   ],
-) <fig11>
+) <fig12>
 
 Neuron slicing reveals groups of neurons sharing similar temporal responses around the puff. The matrix $W_"neuron"$ highlights how strongly each neuron contributes to the different latent components.
 
@@ -433,7 +408,7 @@ Neuron slicing reveals groups of neurons sharing similar temporal responses arou
     Each point corresponds to one lap and shows its weight the first component.
     Colors indicate danger and safe traversals.
   ],
-) <fig12>
+) <fig13>
 
 *TODO: COMMENT !*
 
