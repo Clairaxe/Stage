@@ -446,28 +446,13 @@ In @fig13, the different NMF components exhibit distinct relationships with beha
 
 == Summary
 
-Across PCA and NMF analyses, neural population activity around the puff zone exhibited a clear low-dimensional organization. Several latent components were associated with behavioral condition, with some components being expressed predominantly during dangerous traversals and others during safe traversals.
-
-The comparison between puff-centered and position-based warping further suggested that population activity combines both temporal and spatial organization. Some neurons appeared relatively robust to the normalization scheme, whereas others displayed sharper structure under one representation or the other.
-
 Neuron slicing additionally revealed structured groups of co-active neurons. Importantly, the neurons contributing most strongly to several NMF components overlapped substantially with those identified by PCA, suggesting that the observed population structure is robust across different dimensionality reduction methods.
-
-Overall, these analyses indicate that HPC and BLA population activity around the puff zone is not random or purely local, but instead organized into coordinated latent patterns related to traversal dynamics and behavioral context.
-
 
 = Discussion
 
-The present analyses suggest that neural population activity in HPC and BLA contains structured representations associated with traversal of the puff zone. Both PCA and NMF consistently revealed low-dimensional population structure that partially separates dangerous and safe traversals, indicating that behavioral context is reflected at the level of coordinated neural assemblies.
-
-Importantly, this structure was not exclusively locked to the puff event itself. The comparison between puff-centered and position-based warping showed that some activity patterns remained stable under both normalization schemes, suggesting that neural responses combine temporal dynamics around the puff with spatial coding along the track.
-
-The NMF analyses further suggested that different latent population modes may be preferentially recruited during dangerous versus safe traversals. Because NMF components are additive and nonnegative, these latent patterns can naturally be interpreted as partially distinct population assemblies.
-
-Another important observation is that several dominant neurons were identified consistently across PCA and NMF analyses. This convergence suggests that the extracted structure reflects robust properties of the population activity rather than artifacts of a specific decomposition method.
-
 An important next step will be to characterize more precisely the anatomical organization of these latent components. In particular, it will be interesting to determine whether the identified assemblies remain confined within HPC or BLA, or instead involve coordinated activity spanning both regions. Such mixed components could reflect inter-regional communication during emotionally salient navigation.
 
-There is much more to try !
+There is much more to try:
 
 + communication subspace analyses @Semedo2020Review
 + slice tensor component analysis @Pellegrino2024
