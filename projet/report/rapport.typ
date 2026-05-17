@@ -347,6 +347,8 @@ For the neuron 189 (neuron with the largest PC2 loading), activity is concentrat
 
 = Non-negative Matrix Factorization
 
+Unlike PCA, which represents activity using orthogonal components that may contain positive and negative values, NMF constrains all coefficients to remain non-negative. As a result, neural activity is represented as an additive combination of latent components, often leading to more interpretable population patterns. In practice, NMF tends to identify groups of neurons, laps, or temporal motifs that co-activate together.
+
 After warping, neural activity is represented as a tensor
 
 $
@@ -361,6 +363,8 @@ where $N$ is the number of neurons, $T$ is the number of warped time bins, and $
 
 == Neuron Slicing
 
+In neuron slicing, the warped tensor is reshaped into a matrix of size $(N T) times L$. Applying NMF to this matrix identifies groups of laps sharing similar population activity patterns (@fig11).
+
 #figure(
   grid(
     columns: 2,
@@ -371,56 +375,102 @@ where $N$ is the number of neurons, $T$ is the number of warped time bins, and $
     ],
 
     [
-      #image("figures/nmf_neuron_weights.png", width: 100%)
+      #image("figures/nmf_neuron_component3.png", width: 100%)
     ],
   ),
 
   caption: [
-    NMF neuron slicing.
-    Left: temporal activity profile associated with first component (of 5 in this example) across laps.
-    Each curve corresponds to one lap, with colors indicating danger and safe traversals.
-    Right: neuron-component weight matrix $W_"neuron"$.
+    NMF HPC neuron slicing for Rat 11.
+    Left: temporal activity associated with NMF component 1 across laps.
+    Right: temporal activity associated with NMF component 3 across laps.
+    Each curve corresponds to one lap, with colors indicating safe (green) and dangerous (red) traversals.
   ],
-) <fig12>
+) <fig11>
 
-Neuron slicing reveals groups of neurons sharing similar temporal responses around the puff. The matrix $W_"neuron"$ highlights how strongly each neuron contributes to the different latent components.
+#figure(
+  table(
+    columns: 4,
+    align: center,
+    inset: 6pt,
+    stroke: 0.5pt + gray,
+
+    fill: (x, y) => {
+      if y == 0 {
+        rgb("#e0e4e9")
+      } else if y in (1, 3) {
+        rgb("#8FB8FF")
+      } else {
+        rgb("#C7DCFF")
+      }
+    },
+
+    [Method], [Component], [Top neurons], [Weights / Loadings],
+
+    [NMF], [Component 1], [*150, 147*, 185], [10.1143, 2.7723, 1.4259],
+    [PCA], [PC1], [*147, 150*, 205], [+0.4400, +0.4050, +0.3733],
+
+    [NMF], [Component 3], [*189, 148, 155*], [1.3637, 0.2836, 0.2713],
+    [PCA], [PC2], [*189, 148, 155*], [+0.4749, +0.3840, +0.3775],
+  ),
+
+  caption: [
+    Top 3 neurons of the HPC contributing most strongly to selected NMF components and PCA components for Rat 11 run session
+  ]
+) <table2>
+
+In the @table2, the dominant neurons identified by NMF components match those associated with the leading PCA components (@fig6), suggesting that both decompositions capture related population structure despite relying on different decompositions.
 
 == Time Slicing
 
 #figure(
-  image("figures/nmf_time_slicing_profiles.png", width: 75%),
+  image("figures/nmf_time_slicing_profiles.png", width: 70%),
   caption: [
-    Temporal components extracted by NMF after time slicing.
-    Each curve corresponds to one component of $W_"time"$.
-    The dashed vertical line indicates the puff-aligned bin.
+    Time slicing for Rat 11 run session (HPC neurons). Each curve corresponds to one component of $W_"time"$. The dashed vertical line indicates the puff-aligned bin.
   ],
-) <fig11>
+) <fig12>
 
-*TODO: COMMENT !*
+These components summarize dominant temporal motifs of population activity around the puff event (@fig12).
 
 == Lap Slicing
 
 #figure(
   image("figures/nmf_lap_slicing.png", width: 80%),
   caption: [
-    NMF lap slicing.
+    NMF lap slicing for Rat 11 run session (HPC neurons).
     Each point corresponds to one lap and shows its weight the first component.
-    Colors indicate danger and safe traversals.
+    Colors indicate danger (red) and safe (green) traversals.
   ],
 ) <fig13>
 
-*TODO: COMMENT !*
+In @fig13, the different NMF components exhibit distinct relationships with behavioral condition. Components 1 and 4 are expressed predominantly during dangerous laps, whereas components 3 and 5 are more strongly associated with safe laps. Component 2 appears less condition-specific and may instead reflect variability shared across both traversal types. Overall, these results suggest that lap-level population activity contains structured patterns related to behavioral context around the puff zone.
 
 == Summary
 
-_*résumé scientifique*_
+Across PCA and NMF analyses, neural population activity around the puff zone exhibited a clear low-dimensional organization. Several latent components were associated with behavioral condition, with some components being expressed predominantly during dangerous traversals and others during safe traversals.
+
+The comparison between puff-centered and position-based warping further suggested that population activity combines both temporal and spatial organization. Some neurons appeared relatively robust to the normalization scheme, whereas others displayed sharper structure under one representation or the other.
+
+Neuron slicing additionally revealed structured groups of co-active neurons. Importantly, the neurons contributing most strongly to several NMF components overlapped substantially with those identified by PCA, suggesting that the observed population structure is robust across different dimensionality reduction methods.
+
+Overall, these analyses indicate that HPC and BLA population activity around the puff zone is not random or purely local, but instead organized into coordinated latent patterns related to traversal dynamics and behavioral context.
+
 
 = Discussion
+
+The present analyses suggest that neural population activity in HPC and BLA contains structured representations associated with traversal of the puff zone. Both PCA and NMF consistently revealed low-dimensional population structure that partially separates dangerous and safe traversals, indicating that behavioral context is reflected at the level of coordinated neural assemblies.
+
+Importantly, this structure was not exclusively locked to the puff event itself. The comparison between puff-centered and position-based warping showed that some activity patterns remained stable under both normalization schemes, suggesting that neural responses combine temporal dynamics around the puff with spatial coding along the track.
+
+The NMF analyses further suggested that different latent population modes may be preferentially recruited during dangerous versus safe traversals. Because NMF components are additive and nonnegative, these latent patterns can naturally be interpreted as partially distinct population assemblies.
+
+Another important observation is that several dominant neurons were identified consistently across PCA and NMF analyses. This convergence suggests that the extracted structure reflects robust properties of the population activity rather than artifacts of a specific decomposition method.
+
+An important next step will be to characterize more precisely the anatomical organization of these latent components. In particular, it will be interesting to determine whether the identified assemblies remain confined within HPC or BLA, or instead involve coordinated activity spanning both regions. Such mixed components could reflect inter-regional communication during emotionally salient navigation.
 
 There is much more to try !
 
 + communication subspace analyses @Semedo2020Review
-+ slice tensor component analysis, @Pellegrino2024
++ slice tensor component analysis @Pellegrino2024
 
 = References
 
