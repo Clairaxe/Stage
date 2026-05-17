@@ -312,7 +312,7 @@ To assess this point, we examined, for each warped time bin, the distribution of
 This analysis showed that puff-centered warping successfully aligns the central event, but that bins away from the center may still correspond to a range of nearby positions (@fig8).
 
 #figure(
-  image("figures/position_timewarp.png", width: 100%),
+  image("figures/position_timewarp.png", width: 85%),
   caption: [Puff-centered time warping],
 ) <fig8>
 
@@ -321,11 +321,9 @@ This analysis showed that puff-centered warping successfully aligns the central 
 We implemented a second normalization procedure in which neural activity was interpolated directly onto a common spatial grid spanning the puff zone. In this case, each normalized bin corresponds to a fixed spatial position rather than a fixed normalized time (@fig9). This approach eliminates residual spatial variability across laps and makes it possible to compare neural activity at matched positions along the track.
 
 #figure(
-  image("figures/forced_position_timewarp.png", width: 100%),
+  image("figures/forced_position_timewarp.png", width: 85%),
   caption: [Position-based warping]
   ) <fig9>
-
-*TODO: smaller plots and bigger size of text*
 
 The two approaches therefore emphasize different aspects of the data:
 
@@ -334,21 +332,18 @@ The two approaches therefore emphasize different aspects of the data:
 
 Comparing these two representations helps disentangle whether observed neural structure reflects temporal dynamics around the puff or residual spatial coding.
 
-== Visualization of Activity Before and After Warping
+== Visualization of Warped Neural Activity
 
-To understand concretely how the normalization affects neural activity, we compared, for selected neurons, three representations of lap-by-lap activity around the puff zone:
+To illustrate the effect of the two normalization procedures, we visualized lap-by-lap activity for selected neurons around the puff zone (@fig10).
 
-+ non-warped activity, shown in real time around the puff-centered bin
-+ puff-centered warped activity
-+ position-warped activity
+The upper panel displays activity after puff-centered warping, in which the puff event is aligned at the center of the representation. The lower panel displays activity after position-based warping, where bins correspond to matched spatial locations along the track.
+
+For the neuron 189 (neuron with the largest PC2 loading), activity is concentrated after the puff location and primarily in the safe direction. The similarity between the two warpings suggests that the response is relatively robust to both normalizations.
 
 #figure(
-  image("figures/neuron150_warped.png", width: 90%),
-  caption: [Warpings for a given neuron],
+  image("figures/neuron189_warped.png", width: 100%),
+  caption: [Comparison of puff-centered and position-based warping for a representative neuron. Rows correspond to laps and columns to normalized bins. Laps are sorted by condition: safe laps appear in the first half of each panel and dangerous laps in the second half. The cyan horizontal line marks the separation between the two groups.],
 ) <fig10>
-
-*TODO: * The non-warped representation retains the original time scale and therefore contains segments of different lengths across laps. The puff-warped representation aligns the air-puff event while normalizing traversal duration. The position-warped representation instead aligns activity at matched spatial locations.
-_This is not obvious : Better analysis + more adapted not warped plot_
 
 = Non-negative Matrix Factorization
 
@@ -358,20 +353,11 @@ $
 X in RR_+^(N times T times L),
 $
 
-where $N$ is the number of neurons, $T$ is the number of warped time bins, and $L$ is the number of laps. Since NMF is a matrix factorization method, this tensor must first be reshaped into a two-dimensional matrix. We therefore considered three complementary slicing strategies.
+where $N$ is the number of neurons, $T$ is the number of warped time bins, and $L$ is the number of laps. Since NMF is a matrix factorization method, this tensor must first be reshaped into a two-dimensional matrix. We therefore considered three complementary slicing strategies, leading to three different NMF decompositions from the same warped tensor:
 
-== Time Slicing
-
-#figure(
-  image("figures/nmf_time_slicing_profiles.png", width: 75%),
-  caption: [
-    Temporal components extracted by NMF after time slicing.
-    Each curve corresponds to one component of $W_"time"$.
-    The dashed vertical line indicates the puff-aligned bin.
-  ],
-) <fig11>
-
-*TODO: COMMENT !*
++ time slicing reshapes the tensor into a matrix of size $(T L) times N$ and extracts temporal motifs around the puff
++ neuron slicing reshapes the tensor into a matrix of size $(N T) times L$ and extracts groups of laps with similar population activity profiles
++ lap slicing reshapes the tensor into a matrix of size $(N L) times T$ and extracts temporal patterns shared across neurons and laps
 
 == Neuron Slicing
 
@@ -399,6 +385,19 @@ where $N$ is the number of neurons, $T$ is the number of warped time bins, and $
 
 Neuron slicing reveals groups of neurons sharing similar temporal responses around the puff. The matrix $W_"neuron"$ highlights how strongly each neuron contributes to the different latent components.
 
+== Time Slicing
+
+#figure(
+  image("figures/nmf_time_slicing_profiles.png", width: 75%),
+  caption: [
+    Temporal components extracted by NMF after time slicing.
+    Each curve corresponds to one component of $W_"time"$.
+    The dashed vertical line indicates the puff-aligned bin.
+  ],
+) <fig11>
+
+*TODO: COMMENT !*
+
 == Lap Slicing
 
 #figure(
@@ -414,11 +413,7 @@ Neuron slicing reveals groups of neurons sharing similar temporal responses arou
 
 == Summary
 
-The three slicing strategies define three different NMF decompositions from the same warped tensor:
-
-+ time slicing extracts temporal motifs around the puff
-+ neuron slicing extracts groups of neurons with similar activity profiles
-+ lap slicing extracts lap-level patterns that may separate danger and safe traversals
+_*résumé scientifique*_
 
 = Discussion
 
