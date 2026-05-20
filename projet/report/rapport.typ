@@ -23,28 +23,18 @@
 
 Understanding how brain regions coordinate their activity to support emotional memory is a central question in neuroscience. In particular, interactions between the hippocampus (HPC) and the basolateral amygdala (BLA) are known for playing an important role in the encoding, consolidation, and retrieval of emotionally salient experiences.
 
-This project is based on the dataset introduced by Girardeau et al. @Girardeau2017, which investigates coordinated neural activity between HPC and BLA during an associative learning task. In this experiment, rats repeatedly traverse a linear track where an aversive stimulus (air puff) is delivered at a fixed spatial location. Over time, animals learn to associate a specific traversal direction with the occurrence of this aversive event.
+The main objective of my internship is to identify latent structures in neural population activity. From the observable data (eg: firing rates of neurons, events, speed, position over time), find a pattern of neuronal activity that explain the data and associated behavior. To explore this, we used the dataset introduced by Girardeau et al. @Girardeau2017. In this experiment, rats repeatedly traverse a linear track where an aversive stimulus (air puff) is delivered at a fixed spatial location. Over time, animals learn to associate a specific traversal direction with the occurrence of this aversive event. The data consist of simultaneous multi-unit recordings from multiple brain regions, including HPC and BLA. 
 
-The data consist of simultaneous multi-unit recordings from multiple brain regions, including HPC and BLA. The main objective of my internship is to identify latent structures in neural population activity. From the observable data (eg: firing rates of neurons, events, speed, position over time), find a pattern or a subset of neurons that explain the data and associated behavior. This is interesting as it would allow us to better understand how in a strong emotional context, memory is encoded and retrieved in the HPC and BLA. To this end, we explore several dimensionality reduction techniques, including:
+We aim to better  understand  how  in  a  strong  emotional  context, memory is encoded and retrieved in the HPC and BLA. In particular, we focus on population-level analyses across regions, an aspect that remains relatively unexplored. We also investigate the evolution of neural dynamics throughout the learning stage, providing insight into how population representations evolve during memory formation. To this end, we explore several dimensionality reduction techniques, including:
 
 - Principal Component Analysis (PCA)
 - Non-negative Matrix Factorization (NMF)
-
-The HPC and BLA are major components of the brain located in the limbic system (@fig1). The HPC is a central structure for episodic memory and spatial navigation. It is well known for containing place cells, neurons that fire selectively when the animal occupies a specific position in space. The BLA is involved in processing emotional significance, particularly in fear learning and aversive conditioning. Rather than encoding spatial structure, the BLA assigns value to stimuli and events, signaling whether they are behaviorally relevant, rewarding, or threatening.
-
-#figure(
-  image("images/limbic_system.png", width: 110%),
-  caption: [Primary components of the limbic system],
-) <fig1>
-
-Episodic memory refers to the ability to encode and retrieve specific events, including their spatial context, temporal structure, and associated emotional content. These different aspects are supported by interacting brain systems rather than a single region. In particular, the HPC and the BLA play complementary roles in episodic memory formation, especially when events are emotionally salient.
-
 
 = Dataset and Preprocessing
 
 == Task and dataset
 
-Rats were pretrained to run back and forth on a linear track for water as rewards (@fig2). There are three blocks to the task:
+Rats were pretrained to run back and forth on a linear track for water as rewards (@fig1). There are three blocks to the task:
 
 - Prerun: Behavioral test session on the track without the air puff (followed by pre-learning sleep in the home cage)
 - Run: An aversive air puff is added at the same location of the track on each lap in one of the running directions (followed by a post-learning sleep)
@@ -64,11 +54,11 @@ Rats were pretrained to run back and forth on a linear track for water as reward
     ],
   ),
   caption: [
-    Drawing of linear track (box has the length of 180 cm) and spatial trajectory of Rat 8 during the post-run session.
+    Drawing of linear track reproduced from @Girardeau2017 and spatial trajectory of Rat 8 during the post-run session (box has the length of 180 cm).
   ],
-) <fig2>
+) <fig1>
 
-We have neuronal activity (in Hz), which consists of binned spikes from each session. Time bins are 50ms. We also have the normalized position in the box, x and y position during all the sessions. Reward and shock delivery, if an airpuff was delivered during the time bin and finally, information about neurons (most importantly brain regions and neuronal types). We focus on two sessions: Session 6 from Rat 8 and Session 16 from Rat 11. These sessions contain the largest number of simultaneously recorded neurons in both regions, making them suitable for population-level analyses (@table1). We will only focus on the neurons in the dorsal HPC (dHPC) and the right amydgala (rAMY).
+We have neuronal activity (in Hz), which consists of binned spikes from each session. Time bins are 50ms. We also have the normalized position in the box, x and y position during all the experiment. For each time bin, we know if a reward or an air-puff was delivered.Finally, we have information about neurons, their brain regions and neuronal types. We focus on two sessions: Session 6 from Rat 8 and Session 16 from Rat 11. These sessions contain the largest number of simultaneously recorded neurons in both regions, making them suitable for population-level analyses (@table1). We will focus on the neurons in the dorsal HPC (dHPC) and the right amydgala (rAMY).
 
 #figure(
   table(
@@ -89,8 +79,8 @@ The animal repeatedly traverses the corridor between the two extremities of the 
 
 We therefore define three spatial zones:
 
-- Left zone: $x \leq 0.25$
-- Right zone: $x \geq 0.85$
+- Left zone: $x \l <= 0.25$
+- Right zone: $x \g >= 0.85$
 - Corridor: $0.25 < x < 0.85$
 
 A lap is defined as a complete traversal between extremities:
@@ -98,12 +88,12 @@ A lap is defined as a complete traversal between extremities:
 - Left-to-right (LR)
 - Right-to-left (RL)
 
-Operationally, a lap begins when the animal exits one extremity and enters the corridor, and ends when it reaches the opposite extremity. Short tracking interruptions and brief backtracking movements are ignored to ensure robust segmentation (@fig3). To be more precise, missing tracking bins are skipped, and incomplete crossings are discarded when the animal returns to its starting side before reaching the opposite side.
+Operationally, a lap begins when the animal exits one extremity and enters the corridor, and ends when it reaches the opposite extremity. To ensure robust segmentation (@fig2), short tracking interruptions are ignored, and laps with backtracking are discarded.
 
 #figure(
   image("figures/lap_segmentation_rat8_run.png", width: 100%),
-  caption: [Example of positional tracking and detected laps during post-run session of Rat 8. Red segments correspond to laps traversed in the danger-associated direction and green segments,t safe laps.],
-) <fig3>
+  caption: [Example of positional tracking and detected laps during post-run session of Rat 8. Red segments correspond to laps traversed in the danger-associated direction and green segments, safe laps.],
+) <fig2>
 
 For each lap we extract:
 
@@ -140,7 +130,7 @@ Where $T_d$ is the number of time bins associated to the danger direction, and $
 
 == Conceptual Framework
 
-Neural population activity at time $t$ can be viewed as a point in an $N$-dimensional space:
+Neural population activity X at time $t$ can be viewed as a point in an $N$-dimensional space:
 
 $
 X_(t:) in RR^N
@@ -165,20 +155,20 @@ where:
       rows: 2,
       gutter: 10pt,
         [
-          #image("figures/pca_scores_rat8.png", width: 100%)
+          #image("figures/pca_scores_rat8.png", width: 90%)
         ],
 
         [
-          #image("figures/pca_scores_rat11.png", width: 100%)
+          #image("figures/pca_scores_rat11.png", width: 90%)
         ],
 
         [
-          #image("figures/scree_plot_rat8.png", width: 100%)
+          #image("figures/scree_plot_rat8.png", width: 90%)
           #align(center)[*Rat 8*]  
         ],
 
         [
-          #image("figures/scree_plot_rat11.png", width: 100%)
+          #image("figures/scree_plot_rat11.png", width: 90%)
           #align(center)[*Rat 11*]
         ],
   ),
@@ -186,13 +176,13 @@ where:
   caption: [
     The top figures represent PCA scores (PC1 vs PC2) on the run session of both rats.  
     Each point corresponds to a time bin of neural population activity. 
-    The bottom figures correspond to the explained variance for each principal components.
+    The bottom figures correspond to the explained variance for each principal component.
   ],
-) <fig4>
+) <fig3>
 
-In @fig4, the PCA score plots reveal a moderate separation between time bins associated with the dangerous and safe directions, especially for Rat 11. Since PCA is fully unsupervised, this suggests that the behavioural context contributes to the dominant modes of neural population variability.
+In @fig3, the PCA score plots reveal a moderate separation between time bins associated with the dangerous and safe directions, especially for Rat 11. Since PCA is fully unsupervised, this suggests that the behavioural context contributes to the dominant modes of neural population variability.
 
-However, the scree plots indicate that variance is broadly distributed across components, with PC1 accounting for only about 5% of the total variance. Therefore, the observed separation should not be interpreted as evidence for a simple low-dimensional coding of danger, but rather as a distributed effect in a high-dimensional neural representation.
+However, the scree plots indicate that variance is broadly distributed across components, with PC1 accounting for only about 5% of the total variance. This suggests that the population activity cannot be summarized by a single dominant low-dimensional pattern.
 
 == Loadings
 
@@ -215,13 +205,13 @@ However, the scree plots indicate that variance is broadly distributed across co
     caption: [
       PCA loadings showing neuron contributions to the two first components.
     ],
-) <fig5>
+) <fig4>
 
-Loadings indicate how strongly each neuron contributes to the first two principal components (@fig5). In both rats, neurons from the HPC tend to display larger loading magnitudes than BLAr neurons.
+Loadings indicate how strongly each neuron contributes to the first two principal components (@fig4). In both rats, neurons from the HPC tend to display larger loading magnitudes than BLAr neurons.
 
 == Neurons Contributing Most to Population Axes
 
-To better understand which neurons contribute to the first two PCA axes, we selected neurons whose absolute loading on PC1 or PC2 exceeded 0.3 (@fig6).
+To better understand which neurons contribute to the first two PCA axes, we selected neurons whose absolute loading on PC1 or PC2 exceeded 0.3 (@fig5).
 
 #figure(
   grid(
@@ -240,11 +230,11 @@ To better understand which neurons contribute to the first two PCA axes, we sele
   caption: [
     Neurons with large PCA loadings in Rat 11 run session. Left: loading space for PC1 and PC2 where circled points correspond to neurons with absolute loading greater than 0.3 on PC1 or PC2. Right: mean firing rate during danger and safe traversals for the same selected neurons. Dark blue indicates neurons with stronger contribution to PC1, and light blue indicates neurons with stronger contribution to PC2.
   ],
-) <fig6>
+) <fig5>
 
 Points below the diagonal correspond to neurons with higher average firing rates during danger traversals, whereas points above the diagonal correspond to neurons more active during safe traversals. Neurons with stronger contributions to PC1 appear to be preferentially active during danger traversals, while neurons contributing more strongly to PC2 appear more active during safe traversals.
 
-To examine temporal structure across laps, firing rates of the neurons with the strongest contributions to PC1 and PC2 were plotted across successive laps (@fig7). Randomly selected control neurons from the same region were also displayed for comparison.
+To examine temporal structure across laps, firing rates of the neurons with the strongest contributions to PC1 and PC2 were plotted across successive laps (@fig6). Randomly selected control neurons from the same region were also displayed for comparison.
 
 #figure(
   grid(
@@ -261,9 +251,15 @@ To examine temporal structure across laps, firing rates of the neurons with the 
   caption: [
     Firing rates across laps for Rat 11. Top: neurons with the strongest contributions to PC1 and PC2. Bottom: randomly selected control neurons from the same region. Red shaded areas indicate danger laps.
   ],
-) <fig7>
+) <fig6>
 
-The neurons contributing most strongly to PCA exhibit clearer lap-to-lap modulation than the control neurons. In particular, the neuron associated primarily with PC1 displays increased activity during danger laps, whereas the neuron associated primarily with PC2 shows higher activity during safe laps. The modulation is almost binary, these temporal patterns are consistent with the interpretation that the first two PCA axes partly capture behavioural-context-dependent population dynamics.
+The neurons contributing most strongly to PCA exhibit clearer lap-to-lap modulation than the control neurons. In particular, the neuron contributing most to PC1 displays increased activity during danger laps, whereas the neuron associated primarily with PC2 shows higher activity during safe laps. The modulation is almost binary, these temporal patterns are consistent with the interpretation that the first two PCA axes partly capture behavioural-context-dependent population dynamics.
+
+However, these neurons may also correspond to spatially selective HPC neurons, such as place cells, whose activity depends on the animal’s position along the corridor. In this case, the apparent separation between danger and safe laps could reflect differences in spatial trajectories or direction-dependent modulation rather than a purely emotional encoding. 
+
+_A more complete characterization would therefore require plotting neuronal activity along the entire corridor, rather than restricting the analysis to the -20,+20 window around the puff zone, in order to assess whether these neurons exhibit localized spatial firing fields._
+
+Interestingly, previous studies have shown that hippocampal place cells can display strong direction-dependent activity patterns during navigation. For example, the paper @Dombeck2010 reports directional modulation of place-cell responses, suggesting that similar mechanisms could contribute to the patterns observed here.
 
 == Summary of PCA Findings
 
@@ -272,12 +268,12 @@ Overall, PCA suggests that neural population activity does not cluster strongly 
 Instead:
 
 + Population variability is distributed across many dimensions.
-+ Neurons from HPC and BLA jointly contribute to population axes.
++ The dominant PCA axes are driven primarily by HPC neurons, with smaller contributions from BLA neurons.
 + Some neurons exhibit clear firing differences between danger and safe conditions.
 
 = Time Warping and Event Alignment
 
-A main motivation for introducing time warping was to prepare the data for tensor-based population analyses. Without normalization, laps have different durations and cannot be stacked directly into a coherent neuron × time × lap representation. By mapping all traversals onto a common axis, warping makes it possible to build structured three-dimensional arrays suitable for non-negative matrix factorization, and more generally for tensor decomposition methods such as those considered in @Pellegrino2024.
+A main motivation for introducing time warping was to prepare the data for tensor-based population analyses. Without normalization, laps have different durations and cannot be stacked directly into a coherent neuron x time x lap representation. By mapping all traversals onto a common axis, warping makes it possible to build structured three-dimensional arrays suitable for non-negative matrix factorization, and more generally for tensor decomposition methods such as those considered in @Pellegrino2024.
 
 == Puff-Centered Time Warping
 
@@ -311,21 +307,21 @@ Each slice $X_(:,:,l)$ represents the activity of the full neural population dur
 However, although puff-centered time warping aligns all laps at the puff, it does not guarantee that a given warped time bin corresponds to exactly the same spatial position across laps. Because speed is not always constant, two traversals may differ not only in duration but also in how position evolves relative to time before and after the puff.
 
 To assess this point, we examined, for each warped time bin, the distribution of spatial positions represented across laps.  
-This analysis showed that puff-centered warping successfully aligns the central event, but that bins away from the center may still correspond to a range of nearby positions (@fig8).
+This analysis showed that puff-centered warping successfully aligns the central event, but that bins away from the center may still correspond to a range of nearby positions (@fig7).
 
 #figure(
   image("figures/position_timewarp.png", width: 85%),
   caption: [Puff-centered time warping],
-) <fig8>
+) <fig7>
 
 == Position-Based Warping
 
-We implemented a second normalization procedure in which neural activity was interpolated directly onto a common spatial grid spanning the puff zone. In this case, each normalized bin corresponds to a fixed spatial position rather than a fixed normalized time (@fig9). This approach eliminates residual spatial variability across laps and makes it possible to compare neural activity at matched positions along the track.
+We implemented a second normalization procedure in which neural activity was interpolated directly onto a common spatial grid spanning the puff zone. In this case, each normalized bin corresponds to a fixed spatial position rather than a fixed normalized time (@fig8). This approach eliminates residual spatial variability across laps and makes it possible to compare neural activity at matched positions along the track.
 
 #figure(
   image("figures/forced_position_timewarp.png", width: 85%),
   caption: [Position-based warping]
-  ) <fig9>
+  ) <fig8>
 
 The two approaches therefore emphasize different aspects of the data:
 
@@ -336,7 +332,7 @@ Comparing these two representations helps disentangle whether observed neural st
 
 == Visualization of Warped Neural Activity
 
-To illustrate the effect of the two normalization procedures, we visualized lap-by-lap activity for selected neurons around the puff zone (@fig10).
+To illustrate the effect of the two normalization procedures, we visualized lap-by-lap activity for selected neurons around the puff zone (@fig9).
 
 The upper panel displays activity after puff-centered warping, in which the puff event is aligned at the center of the representation. The lower panel displays activity after position-based warping, where bins correspond to matched spatial locations along the track.
 
@@ -345,23 +341,32 @@ For the neuron 189 (neuron with the largest PC2 loading), activity is concentrat
 #figure(
   image("figures/neuron189_warped.png", width: 100%),
   caption: [Comparison of puff-centered and position-based warping for a representative neuron. Rows correspond to laps and columns to normalized bins. Laps are sorted by condition: safe laps appear in the first half of each panel and dangerous laps in the second half. The cyan horizontal line marks the separation between the two groups.],
-) <fig10>
+) <fig9>
 
 = Non-negative Matrix Factorization
 
-Unlike PCA, which represents activity using orthogonal components that may contain positive and negative values, NMF constrains all coefficients to remain non-negative. As a result, neural activity is represented as an additive combination of positive latent components, often leading to more interpretable population patterns. In practice, NMF tends to identify groups of neurons, laps, or temporal motifs that co-activate together.
+Unlike PCA, which represents activity using orthogonal components that may contain positive and negative values, NMF constrains all coefficients to remain non-negative. Neural activity is therefore represented as an additive combination of positive latent components, often yielding more interpretable population patterns.
+Given a non-negative matrix $M$, NMF seeks a low-rank approximation of the form
 
-NMF is a matrix factorization method, so our neural activity tensor must first be reshaped into a two-dimensional matrix. We therefore considered three complementary slicing strategies, leading to three different NMF decompositions of the same warped tensor:
+$ M approx W H $
 
-- *Neuron slicing* reshapes the tensor into a matrix of size $N times (T L)$. It extracts groups of neurons with similar activity profiles across time and laps.
+where $W$ and $H$ are also non-negative. If $M$ has size $m times n$ and the decomposition uses $K$ latent components, then
 
-- *Time slicing* reshapes the tensor into a matrix of size $T times (N L)$. It extracts temporal motifs shared across neurons and laps.
+$ W in RR_+^(m times K), quad H in RR_+^(K times n). $
 
-- *Lap slicing* reshapes the tensor into a matrix of size $L times (N T)$. It extracts groups of laps with similar population activity patterns across neurons and time.
+The matrix $W$ describes how strongly each observation contributes to each latent component, whereas $H$ describes the expression of these components across features.
+
+Our neural activity tensor must first be reshaped into a two-dimensional matrix. We therefore considered three complementary slicing strategies, leading to three different NMF decompositions of the same warped tensor:
+
+- *Neuron slicing* reshapes the tensor into a matrix of size $N times (T L)$. It identifies groups of neurons sharing similar activity profiles across time and laps.
+
+- *Time slicing* reshapes the tensor into a matrix of size $T times (N L)$. It identifies temporal motifs shared across neurons and laps.
+
+- *Lap slicing* reshapes the tensor into a matrix of size $L times (N T)$. It identifies groups of laps with similar population activity patterns across neurons and time.
 
 == Neuron Slicing
 
-In neuron slicing, the warped tensor is reshaped into a matrix of size $(N T) times L$. Applying NMF to this matrix identifies groups of laps sharing similar population activity patterns (@fig11).
+In neuron slicing, the warped tensor is reshaped into a matrix of size $N times (T L)$. Applying NMF to this matrix identifies latent components associated with groups of neurons sharing similar activity profiles across time and laps. In this setting, the matrix $W$ contains the neuron weights for each component, while $H$ describes the temporal expression of these components across laps (@fig10).
 
 #figure(
   grid(
@@ -382,8 +387,9 @@ In neuron slicing, the warped tensor is reshaped into a matrix of size $(N T) ti
     Left: temporal activity associated with NMF component 1 across laps.
     Right: temporal activity associated with NMF component 3 across laps.
     Each curve corresponds to one lap, with colors indicating safe (green) and dangerous (red) traversals.
+    In this slicing, the neuron weights are encoded in the matrix $W$, while the plotted curves correspond to the reshaped rows of $H$.
   ],
-) <fig11>
+) <fig10>
 
 #figure(
   table(
@@ -416,18 +422,18 @@ In neuron slicing, the warped tensor is reshaped into a matrix of size $(N T) ti
   ]
 ) <table2>
 
-In the @table2, the dominant neurons identified by NMF components match those associated with the leading PCA components (@fig6), suggesting that both decompositions capture related population structure despite relying on different decompositions.
+In the @table2, the dominant neurons identified by NMF components match those associated with the leading PCA components (@fig5), suggesting that both decompositions capture related population structure despite relying on different decompositions. In addition, neurons contributing strongly to corresponding PCA and NMF components display similar danger/safe activation profiles across laps.
 
 == Time Slicing
 
 #figure(
   image("figures/nmf_time_slicing_profiles.png", width: 70%),
   caption: [
-    Time slicing for Rat 11 run session (HPC neurons). Each curve corresponds to one component of $W_"time"$. The dashed vertical line indicates the puff-aligned bin.
+    Time slicing for Rat 11 run session (HPC neurons). Each curve corresponds to one component of W. The dashed vertical line indicates the puff-aligned bin.
   ],
-) <fig12>
+) <fig11>
 
-These components summarize dominant temporal motifs of population activity around the puff event (@fig12).
+These components summarize dominant temporal motifs of population activity around the puff event (@fig11).
 
 == Lap Slicing
 
@@ -435,12 +441,12 @@ These components summarize dominant temporal motifs of population activity aroun
   image("figures/nmf_lap_slicing.png", width: 80%),
   caption: [
     NMF lap slicing for Rat 11 run session (HPC neurons).
-    Each point corresponds to one lap and shows its weight the first component.
+    Each point corresponds to one lap and shows its weight on the NMF component.
     Colors indicate danger (red) and safe (green) traversals.
   ],
-) <fig13>
+) <fig12>
 
-In @fig13, the different NMF components exhibit distinct relationships with behavioral condition. Components 1 and 4 are expressed predominantly during dangerous laps, whereas components 3 and 5 are more strongly associated with safe laps. Component 2 appears less condition-specific and may instead reflect variability shared across both traversal types. Overall, these results suggest that lap-level population activity contains structured patterns related to behavioral context around the puff zone.
+In @fig12, the different NMF components exhibit distinct relationships with behavioral condition. Components 1 and 4 are expressed predominantly during dangerous laps, whereas components 3 and 5 are more strongly associated with safe laps. Component 2 appears less condition-specific and may instead reflect variability shared across both traversal types. Overall, these results suggest that lap-level population activity contains structured patterns related to behavioral context around the puff zone.
 
 == Summary
 
@@ -448,7 +454,7 @@ Neuron slicing additionally revealed structured groups of co-active neurons. Imp
 
 = Discussion
 
-An important next step will be to characterize more precisely the anatomical organization of these latent components. In particular, it will be interesting to determine whether the identified assemblies remain confined within HPC or BLA, or instead involve coordinated activity spanning both regions. Such mixed components could reflect inter-regional communication during emotionally salient navigation.
+_Avant de donner les perspectives, il faudrait quand même quelques phrases qui récapitulent les résultats et les remettent dans le contexte de la question/aim posé en intro. En principe, dans un article scientifique, on met aussi en perspective avec les résultats d'autres articles._
 
 There is much more to try:
 
