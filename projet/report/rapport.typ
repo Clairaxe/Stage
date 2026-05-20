@@ -1,14 +1,16 @@
 #import "@preview/charged-ieee:0.1.4": ieee
 
 #show: ieee.with(
-  title: [Population Analyses of Hippocampus–Amygdala Interactions],
+  title: [Population Analysis of Hippocampus–Amygdala Interactions during learning],
 
   authors: (
     (
       name: "Claire Chambaz",
+      department: "Université Paris Cité et Sornonne Université"
     ),
     (
       name: "Claire Meissner Bernard",
+      department: "Centre de Neuroscience de Sorbonne Université"
     ),
   ),
 )
@@ -21,21 +23,21 @@
 
 Understanding how brain regions coordinate their activity to support emotional memory is a central question in neuroscience. In particular, interactions between the hippocampus (HPC) and the basolateral amygdala (BLA) are known for playing an important role in the encoding, consolidation, and retrieval of emotionally salient experiences.
 
-This project is based on the dataset introduced by Girardeau et al. @Girardeau2017, which investigates coordinated neural activity between hippocampus and amygdala during an associative learning task. In this experiment, rats repeatedly traverse a linear track where an aversive stimulus (air puff) is delivered at a fixed spatial location. Over time, animals learn to associate a specific traversal direction with the occurrence of this aversive event.
+This project is based on the dataset introduced by Girardeau et al. @Girardeau2017, which investigates coordinated neural activity between HPC and BLA during an associative learning task. In this experiment, rats repeatedly traverse a linear track where an aversive stimulus (air puff) is delivered at a fixed spatial location. Over time, animals learn to associate a specific traversal direction with the occurrence of this aversive event.
 
-The data consist of simultaneous multi-unit recordings from multiple brain regions, including hippocampus and basolateral amygdala. The main objective of my internship is to identify latent structures in neural population activity. From the observable data (eg: firing rates of neurons, events, speed, position over time), find a pattern or a subset of neurons that explain the data and associated behavior. This is interesting as it would allow us to better understand how in a strong emotional context, memory is encoded and retrieved in the hippocampus and basolateral amygdala. To this end, we explore several dimensionality reduction techniques, including:
+The data consist of simultaneous multi-unit recordings from multiple brain regions, including HPC and BLA. The main objective of my internship is to identify latent structures in neural population activity. From the observable data (eg: firing rates of neurons, events, speed, position over time), find a pattern or a subset of neurons that explain the data and associated behavior. This is interesting as it would allow us to better understand how in a strong emotional context, memory is encoded and retrieved in the HPC and BLA. To this end, we explore several dimensionality reduction techniques, including:
 
 - Principal Component Analysis (PCA)
 - Non-negative Matrix Factorization (NMF)
 
-The hippocampus and basolateral amygdala are major components of the brain located in the limbic system (@fig1). The HPC is a central structure for episodic memory and spatial navigation. It is well known for containing place cells, neurons that fire selectively when the animal occupies a specific position in space. The BLA is involved in processing emotional significance, particularly in fear learning and aversive conditioning. Rather than encoding spatial structure, the amygdala assigns value to stimuli and events, signaling whether they are behaviorally relevant, rewarding, or threatening.
+The HPC and BLA are major components of the brain located in the limbic system (@fig1). The HPC is a central structure for episodic memory and spatial navigation. It is well known for containing place cells, neurons that fire selectively when the animal occupies a specific position in space. The BLA is involved in processing emotional significance, particularly in fear learning and aversive conditioning. Rather than encoding spatial structure, the BLA assigns value to stimuli and events, signaling whether they are behaviorally relevant, rewarding, or threatening.
 
 #figure(
   image("images/limbic_system.png", width: 110%),
   caption: [Primary components of the limbic system],
 ) <fig1>
 
-Episodic memory refers to the ability to encode and retrieve specific events, including their spatial context, temporal structure, and associated emotional content. These different aspects are supported by interacting brain systems rather than a single region. In particular, the hippocampus and the amygdala play complementary roles in episodic memory formation, especially when events are emotionally salient.
+Episodic memory refers to the ability to encode and retrieve specific events, including their spatial context, temporal structure, and associated emotional content. These different aspects are supported by interacting brain systems rather than a single region. In particular, the HPC and the BLA play complementary roles in episodic memory formation, especially when events are emotionally salient.
 
 
 = Dataset and Preprocessing
@@ -66,7 +68,7 @@ Rats were pretrained to run back and forth on a linear track for water as reward
   ],
 ) <fig2>
 
-We have neuronal activity (in Hz), which consists of binned spikes from each session. Time bins are 50ms. We also have the normalized position in the box, x and y position during all the sessions. Reward and shock delivery, if an airpuff was delivered during the time bin and finally, information about neurons (most importantly brain regions and neuronal types). We focus on two sessions: Session 6 from Rat 8 and Session 16 from Rat 11. These sessions contain the largest number of simultaneously recorded neurons in both regions, making them suitable for population-level analyses (@table1). We will only focus on the neurons in the dorsal hippocampus (dHPC) and the right amydgala (rAMY).
+We have neuronal activity (in Hz), which consists of binned spikes from each session. Time bins are 50ms. We also have the normalized position in the box, x and y position during all the sessions. Reward and shock delivery, if an airpuff was delivered during the time bin and finally, information about neurons (most importantly brain regions and neuronal types). We focus on two sessions: Session 6 from Rat 8 and Session 16 from Rat 11. These sessions contain the largest number of simultaneously recorded neurons in both regions, making them suitable for population-level analyses (@table1). We will only focus on the neurons in the dorsal HPC (dHPC) and the right amydgala (rAMY).
 
 #figure(
   table(
@@ -111,7 +113,7 @@ For each lap we extract:
 
 == Neural Data Preprocessing
 
-Neural activity was recorded simultaneously from hippocampus and basolateral amygdala. All analyses were restricted to excitatory neurons. Neural activity matrices take the form $X in RR^(T times N)$ where $T =$ number of time bins and $N =$ number of neurons. Each row represents the instantaneous population state at a given time bin. Neural activity was z-scored across time for each neuron. This ensures that neurons with higher firing rates do not dominate the variance structure. Normalization was applied prior to PCA and nNMF.
+Neural activity was recorded simultaneously from HPC and BLA. All analyses were restricted to excitatory neurons. Neural activity matrices take the form $X in RR^(T times N)$ where $T =$ number of time bins and $N =$ number of neurons. Each row represents the instantaneous population state at a given time bin. Neural activity was z-scored across time for each neuron. This ensures that neurons with higher firing rates do not dominate the variance structure. Normalization was applied prior to PCA and nNMF.
 
 == Extraction of Danger vs Safe Samples
 
@@ -215,7 +217,7 @@ However, the scree plots indicate that variance is broadly distributed across co
     ],
 ) <fig5>
 
-Loadings indicate how strongly each neuron contributes to the first two principal components (@fig5). In both rats, neurons from the hippocampus tend to display larger loading magnitudes than amygdalar neurons.
+Loadings indicate how strongly each neuron contributes to the first two principal components (@fig5). In both rats, neurons from the HPC tend to display larger loading magnitudes than BLAr neurons.
 
 == Neurons Contributing Most to Population Axes
 
@@ -347,19 +349,15 @@ For the neuron 189 (neuron with the largest PC2 loading), activity is concentrat
 
 = Non-negative Matrix Factorization
 
-Unlike PCA, which represents activity using orthogonal components that may contain positive and negative values, NMF constrains all coefficients to remain non-negative. As a result, neural activity is represented as an additive combination of latent components, often leading to more interpretable population patterns. In practice, NMF tends to identify groups of neurons, laps, or temporal motifs that co-activate together.
+Unlike PCA, which represents activity using orthogonal components that may contain positive and negative values, NMF constrains all coefficients to remain non-negative. As a result, neural activity is represented as an additive combination of positive latent components, often leading to more interpretable population patterns. In practice, NMF tends to identify groups of neurons, laps, or temporal motifs that co-activate together.
 
-After warping, neural activity is represented as a tensor
+NMF is a matrix factorization method, so our neural activity tensor must first be reshaped into a two-dimensional matrix. We therefore considered three complementary slicing strategies, leading to three different NMF decompositions of the same warped tensor:
 
-$
-X in RR_+^(N times T times L),
-$
+- *Neuron slicing* reshapes the tensor into a matrix of size $N times (T L)$. It extracts groups of neurons with similar activity profiles across time and laps.
 
-where $N$ is the number of neurons, $T$ is the number of warped time bins, and $L$ is the number of laps. Since NMF is a matrix factorization method, this tensor must first be reshaped into a two-dimensional matrix. We therefore considered three complementary slicing strategies, leading to three different NMF decompositions from the same warped tensor:
+- *Time slicing* reshapes the tensor into a matrix of size $T times (N L)$. It extracts temporal motifs shared across neurons and laps.
 
-+ time slicing reshapes the tensor into a matrix of size $(T L) times N$ and extracts temporal motifs around the puff
-+ neuron slicing reshapes the tensor into a matrix of size $(N T) times L$ and extracts groups of laps with similar population activity profiles
-+ lap slicing reshapes the tensor into a matrix of size $(N L) times T$ and extracts temporal patterns shared across neurons and laps
+- *Lap slicing* reshapes the tensor into a matrix of size $L times (N T)$. It extracts groups of laps with similar population activity patterns across neurons and time.
 
 == Neuron Slicing
 
