@@ -1,7 +1,7 @@
 #import "@preview/charged-ieee:0.1.4": ieee
 
 #show: ieee.with(
-  title: [Population Analysis of Hippocampus–Amygdala Interactions during learning],
+  title: [Population Analysis of Hippocampus-Amygdala Interactions during learning],
 
   authors: (
     (
@@ -58,7 +58,7 @@ Rats were pretrained to run back and forth on a linear track for water as reward
   ],
 ) <fig1>
 
-We have neuronal activity (in Hz), which consists of binned spikes from each session. Time bins are 50ms. We also have the normalized position in the box, x and y position during all the experiment. For each time bin, we know if a reward or an air-puff was delivered.Finally, we have information about neurons, their brain regions and neuronal types. We focus on two sessions: Session 6 from Rat 8 and Session 16 from Rat 11. These sessions contain the largest number of simultaneously recorded neurons in both regions, making them suitable for population-level analyses (@table1). We will focus on the neurons in the dorsal HPC (dHPC) and the right amydgala (rAMY).
+We have neuronal activity (in Hz), which consists of binned spikes from each session. Time bins are 50ms. We also have the normalized position in the box, x and y position during all the experiment. For each time bin, we know if a reward or an air-puff was delivered. Finally, we have information about neurons, their brain regions and neuronal types. We focus on two sessions: Session 6 from Rat 8 and Session 16 from Rat 11. These sessions contain the largest number of simultaneously recorded neurons in both regions, making them suitable for population-level analyses (@table1). We will focus on the neurons in the dorsal HPC (dHPC) and the right amydgala (rAMY).
 
 #figure(
   table(
@@ -257,15 +257,11 @@ The neurons contributing most strongly to PCA exhibit clearer lap-to-lap modulat
 
 However, these neurons may also correspond to spatially selective HPC neurons, such as place cells, whose activity depends on the animal’s position along the corridor. In this case, the apparent separation between danger and safe laps could reflect differences in spatial trajectories or direction-dependent modulation rather than a purely emotional encoding. 
 
-_A more complete characterization would therefore require plotting neuronal activity along the entire corridor, rather than restricting the analysis to the -20,+20 window around the puff zone, in order to assess whether these neurons exhibit localized spatial firing fields._
-
 Interestingly, previous studies have shown that hippocampal place cells can display strong direction-dependent activity patterns during navigation. For example, the paper @Dombeck2010 reports directional modulation of place-cell responses, suggesting that similar mechanisms could contribute to the patterns observed here.
 
 == Summary of PCA Findings
 
-Overall, PCA suggests that neural population activity does not cluster strongly by condition at the level of instantaneous time bins.
-
-Instead:
+Overall, PCA suggests that neural population activity does not cluster strongly by condition at the level of instantaneous time bins. Instead:
 
 + Population variability is distributed across many dimensions.
 + The dominant PCA axes are driven primarily by HPC neurons, with smaller contributions from BLA neurons.
@@ -378,14 +374,14 @@ In neuron slicing, the warped tensor is reshaped into a matrix of size $N times 
     ],
 
     [
-      #image("figures/nmf_neuron_component3.png", width: 100%)
+      #image("figures/nmf_neuron_component5.png", width: 100%)
     ],
   ),
 
   caption: [
-    NMF HPC neuron slicing for Rat 11.
+    NMF neuron slicing for Rat 11.
     Left: temporal activity associated with NMF component 1 across laps.
-    Right: temporal activity associated with NMF component 3 across laps.
+    Right: temporal activity associated with NMF component 5 across laps.
     Each curve corresponds to one lap, with colors indicating safe (green) and dangerous (red) traversals.
     In this slicing, the neuron weights are encoded in the matrix $W$, while the plotted curves correspond to the reshaped rows of $H$.
   ],
@@ -410,11 +406,11 @@ In neuron slicing, the warped tensor is reshaped into a matrix of size $N times 
 
     [Method], [Component], [Top neurons], [Weights / Loadings],
 
-    [NMF], [Component 1], [*150, 147*, 185], [10.1143, 2.7723, 1.4259],
-    [PCA], [PC1], [*147, 150*, 205], [+0.4400, +0.4050, +0.3733],
+    [NMF], [Component 1], [*150, 147*, 185], [11.28, 3.23, 1.63],
+    [PCA], [PC1], [*147, 150*, 205], [+0.44, +0.41, +0.37],
 
-    [NMF], [Component 3], [*189, 148, 155*], [1.3637, 0.2836, 0.2713],
-    [PCA], [PC2], [*189, 148, 155*], [+0.4749, +0.3840, +0.3775],
+    [NMF], [Component 5], [*189, 148, 155*], [6.35, 1.31, 1.25],
+    [PCA], [PC2], [*189, 148, 155*], [+0.47, +0.38, +0.38],
   ),
 
   caption: [
@@ -438,7 +434,7 @@ These components summarize dominant temporal motifs of population activity aroun
 == Lap Slicing
 
 #figure(
-  image("figures/nmf_lap_slicing.png", width: 80%),
+  image("figures/nmf_lap_slicing.png", width: 78%),
   caption: [
     NMF lap slicing for Rat 11 run session (HPC neurons).
     Each point corresponds to one lap and shows its weight on the NMF component.
@@ -454,13 +450,14 @@ Neuron slicing additionally revealed structured groups of co-active neurons. Imp
 
 = Discussion
 
-_Avant de donner les perspectives, il faudrait quand même quelques phrases qui récapitulent les résultats et les remettent dans le contexte de la question/aim posé en intro. En principe, dans un article scientifique, on met aussi en perspective avec les résultats d'autres articles._
+This internship provided a first exploration of population-level interactions between the hippocampus and amygdala during aversive learning. The analyses suggest that neural population activity contains behavioral information that can be partially extracted through low-dimensional representations. The results also highlight the complexity of neural population dynamics, as variability was distributed across many dimensions.
 
-There is much more to try:
+Several directions remain to be explored. In particular, time-slicing and lap-slicing analyses deserve further investigation. Another important question is whether the neurons contributing most strongly to the PCA and NMF components correspond to spatially selective hippocampal neurons.
 
-+ communication subspace analyses @Semedo2020Review
-+ slice tensor component analysis @Pellegrino2024
+Future work could also incorporate communication subspace analyses  @Semedo2020Review to better characterize inter-regional information exchange, as well as slice tensor component analysis @Pellegrino2024 to capture more structured patterns of population activity across neurons, time, and behavioral conditions.
 
-= References
 
+= Acknowledgments
+
+I would like to sincerely thank Claire Meissner-Berner for her guidance, patience, and valuable advice throughout this internship, as well as for taking the time to read my report three times. I am also grateful to all members of the lab for their warm welcome, fun discussions, and genuine interest in the work I carried out during this internship.
 #bibliography("references.bib")
