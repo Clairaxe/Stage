@@ -459,5 +459,5 @@ Future work could also incorporate communication subspace analyses  @Semedo2020R
 
 = Acknowledgments
 
-I would like to sincerely thank Claire Meissner-Berner for her guidance, patience, and valuable advice throughout this internship, as well as for taking the time to read my report three times. I am also grateful to all members of the lab for their warm welcome, fun discussions, and genuine interest in the work I carried out during this internship.
+I would like to sincerely thank Claire Meissner-Bernard for her guidance, patience, and valuable advice throughout this internship, as well as for taking the time to read my report three times. I am also grateful to all members of the lab for their warm welcome, fun discussions, and genuine interest in the work I carried out during this internship.
 #bibliography("references.bib")
